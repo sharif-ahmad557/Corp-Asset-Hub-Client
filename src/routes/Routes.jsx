@@ -32,6 +32,10 @@ export const router = createBrowserRouter([
           <div className="text-center mt-20">HR Register Page Coming Soon</div>
         ),
       },
+      {
+        path: "login",
+        element: <Login />,
+      },
     ],
   },
 ]);
