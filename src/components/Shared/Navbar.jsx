@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 
 const Navbar = () => {
   const { user, logOut } = useAuth();
-  const [role] = useRole(); // আমাদের কাস্টম হুক থেকে রোল আনছি
+  const [role] = useRole(); 
   const navigate = useNavigate();
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
 
