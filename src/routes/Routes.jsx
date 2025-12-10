@@ -8,6 +8,8 @@ import PrivateRoute from "./PrivateRoute.jsx";
 import HRRoute from "./HRRoute.jsx";
 import AssetList from "../pages/Dashboard/HR/AssetList.jsx";
 import AddAsset from "../pages/Dashboard/HR/AddAsset.jsx";
+import RequestAsset from "../pages/Dashboard/Employee/RequestAsset.jsx";
+import MyAssets from "../pages/Dashboard/Employee/MyAssets.jsx";
 
 export const router = createBrowserRouter([
   {
@@ -48,6 +50,22 @@ export const router = createBrowserRouter([
             <HRRoute>
               <AssetList />
             </HRRoute>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "request-asset",
+        element: (
+          <PrivateRoute>
+            <RequestAsset />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "my-assets",
+        element: (
+          <PrivateRoute>
+            <MyAssets />
           </PrivateRoute>
         ),
       },
