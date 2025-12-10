@@ -3,6 +3,8 @@ import MainLayout from "../layouts/MainLayout.jsx";
 import Home from "../pages/Home/Home";
 import Login from "../pages/Login/Login.jsx";
 import EmployeeRegister from "../pages/Register/EmployeeRegister.jsx";
+import HrRegister from "../pages/Register/HrRegister";
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -14,18 +16,16 @@ export const router = createBrowserRouter([
       },
 
       {
-        path: "join-hr",
-        element: (
-          <div className="text-center mt-20">HR Register Page Coming Soon</div>
-        ),
-      },
-      {
         path: "login",
         element: <Login />,
       },
       {
         path: "join-employee",
         element: <EmployeeRegister />,
+      },
+      {
+        path: "join-hr",
+        element: <HrRegister />,
       },
     ],
   },
