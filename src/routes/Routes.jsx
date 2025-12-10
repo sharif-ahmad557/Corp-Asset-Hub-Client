@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout.jsx";
 import Home from "../pages/Home/Home";
 import Login from "../pages/Login/Login.jsx";
-
+import EmployeeRegister from "../pages/Register/EmployeeRegister.jsx";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -12,14 +12,7 @@ export const router = createBrowserRouter([
         path: "/",
         element: <Home />,
       },
-      {
-        path: "join-employee",
-        element: (
-          <div className="text-center mt-20">
-            Employee Register Page Coming Soon
-          </div>
-        ),
-      },
+
       {
         path: "join-hr",
         element: (
@@ -29,6 +22,10 @@ export const router = createBrowserRouter([
       {
         path: "login",
         element: <Login />,
+      },
+      {
+        path: "join-employee",
+        element: <EmployeeRegister />,
       },
     ],
   },
