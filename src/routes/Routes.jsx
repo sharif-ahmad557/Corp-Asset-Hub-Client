@@ -14,6 +14,16 @@ import AllRequests from "../pages/Dashboard/HR/AllRequests";
 import MyEmployeeList from "../pages/Dashboard/HR/MyEmployeeList";
 import Payment from "../pages/Dashboard/HR/Payment/Payment";
 import ErrorPage from "../pages/Shared/ErrorPage.jsx";
+import Features from "../components/Shared/Features.jsx";
+import Pricing from "../components/Shared/Pricing.jsx";
+import About from "../components/Shared/About.jsx";
+import Contact from "../components/Shared/Contact.jsx";
+import Profile from "../pages/Dashboard/HR/Profile.jsx";
+import MyTeam from "../pages/Dashboard/Employee/MyTeam.jsx";
+import MyProfile from "../pages/Dashboard/Employee/Profile.jsx";
+
+
+
 
 export const router = createBrowserRouter([
   {
@@ -75,6 +85,22 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "my-team",
+        element: (
+          <PrivateRoute>
+            <MyTeam />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "my-profile",
+        element: (
+          <PrivateRoute>
+            <MyProfile />
+          </PrivateRoute>
+        ),
+      },
+      {
         path: "all-requests",
         element: (
           <PrivateRoute>
@@ -114,6 +140,20 @@ export const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
+      {
+        path: "Profile",
+        element: (
+          <PrivateRoute>
+            <HRRoute>
+              <Profile />
+            </HRRoute>
+          </PrivateRoute>
+        ),
+      },
+      { path: "/features", element: <Features /> },
+      { path: "/pricing", element: <Pricing /> },
+      { path: "/about", element: <About /> },
+      { path: "/contact", element: <Contact /> },
     ],
   },
 ]);

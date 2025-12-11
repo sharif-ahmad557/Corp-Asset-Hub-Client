@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import useAuth from "../../hooks/useAuth.jsx";
-import useRole from "../../hooks/useRole";
+import useRole from "../../hooks/useRole"; // নিশ্চিত করুন আপনার useRole হুকটি [role, isLoading] রিটার্ন করে
 import {
   IoMoon,
   IoSunny,
@@ -21,14 +21,17 @@ import toast from "react-hot-toast";
 
 const Navbar = () => {
   const { user, logOut } = useAuth();
-  const [role] = useRole();
+
+  // আপডেট ১: isLoading স্টেটটি বের করে আনা হলো
+  const [role, isLoading] = useRole();
+
   const navigate = useNavigate();
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isJoinDropdownOpen, setIsJoinDropdownOpen] = useState(false);
 
-  // Scroll Detection for Glass Effect
+  // Scroll Detection
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -37,7 +40,7 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Theme Toggle Logic
+  // Theme Toggle
   useEffect(() => {
     localStorage.setItem("theme", theme);
     document.querySelector("html").setAttribute("data-theme", theme);
@@ -81,19 +84,17 @@ const Navbar = () => {
     </NavLink>
   );
 
-  // --- MENU LINKS GENERATION ---
-
-  // 1. Center Menu (Public)
+  // --- MENU LINKS ---
   const publicLinks = (
     <>
       <li>
         <NavItem to="/">Home</NavItem>
       </li>
       <li>
-        <NavItem to="#features">Features</NavItem>
+        <NavItem to="/features">Features</NavItem>
       </li>
       <li>
-        <NavItem to="#pricing">Pricing</NavItem>
+        <NavItem to="/pricing">Pricing</NavItem>
       </li>
       <li>
         <NavItem to="/about">About Us</NavItem>
@@ -104,7 +105,6 @@ const Navbar = () => {
     </>
   );
 
-  // 2. Employee Dashboard Links
   const employeeLinks = (
     <>
       <li>
@@ -129,7 +129,7 @@ const Navbar = () => {
         </NavLink>
       </li>
       <li>
-        <NavLink to="/profile" className="justify-between">
+        <NavLink to="/my-profile" className="justify-between">
           <span className="flex items-center gap-2">
             <IoPersonOutline /> Profile
           </span>
@@ -138,7 +138,6 @@ const Navbar = () => {
     </>
   );
 
-  // 3. HR Dashboard Links
   const hrLinks = (
     <>
       <li>
@@ -197,7 +196,7 @@ const Navbar = () => {
       }`}
     >
       <div className="navbar-start">
-        {/* Mobile Dropdown */}
+        {/* Mobile Menu */}
         <div className="dropdown lg:hidden">
           <div
             tabIndex={0}
@@ -227,7 +226,6 @@ const Navbar = () => {
                 className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow-xl bg-base-100 rounded-box w-64 border border-base-200"
               >
                 {publicLinks}
-                {/* Mobile Extra Links for Join */}
                 {!user && (
                   <>
                     <div className="divider my-1"></div>
@@ -254,7 +252,7 @@ const Navbar = () => {
           </AnimatePresence>
         </div>
 
-        {/* Brand Logo with Image */}
+        {/* Brand Logo */}
         <Link to="/" className="flex items-center gap-2">
           <img
             src="/navlogo.png"
@@ -264,14 +262,14 @@ const Navbar = () => {
         </Link>
       </div>
 
-      {/* Center Menu (Desktop) */}
+      {/* Center Menu */}
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1 gap-8 text-base font-medium">
           {publicLinks}
         </ul>
       </div>
 
-      {/* Right Side Actions */}
+      {/* Right Side */}
       <div className="navbar-end gap-3">
         {/* Theme Toggle */}
         <label className="swap swap-rotate btn btn-ghost btn-circle hover:bg-base-200 text-base-content">
@@ -286,7 +284,6 @@ const Navbar = () => {
 
         {/* Auth Logic */}
         {user ? (
-          // Logged In: Profile Dropdown
           <div className="dropdown dropdown-end">
             <div
               tabIndex={0}
@@ -313,17 +310,39 @@ const Navbar = () => {
                   <span className="font-bold text-base">
                     {user?.displayName}
                   </span>
-                  <span className="text-xs uppercase tracking-wider opacity-60 font-semibold badge badge-sm badge-outline">
-                    {role || "Verifying..."}
-                  </span>
+
+                  {/* আপডেট ২: Role Loading State */}
+                  {isLoading ? (
+                    <span className="loading loading-dots loading-xs text-primary"></span>
+                  ) : (
+                    <span className="text-xs uppercase tracking-wider opacity-60 font-semibold badge badge-sm badge-outline">
+                      {role || "No Role"}
+                    </span>
+                  )}
                 </div>
               </li>
 
               <div className="divider my-1"></div>
-              <div className="space-y-1">
-                {role === "hr" && hrLinks}
-                {role === "employee" && employeeLinks}
-              </div>
+
+              {/* আপডেট ৩: মেনু লোডিং স্পিনার */}
+              {isLoading ? (
+                <div className="flex justify-center items-center py-4">
+                  <span className="loading loading-spinner loading-md text-primary bg-gradient-to-r from-blue-600 to-violet-600"></span>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  {role === "hr" && hrLinks}
+                  {role === "employee" && employeeLinks}
+
+                  {/* যদি রোল না পাওয়া যায় */}
+                  {!role && (
+                    <div className="text-center py-2 text-xs text-error">
+                      Please check connection <br /> or contact admin.
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="divider my-1"></div>
               <li>
                 <button
@@ -336,7 +355,6 @@ const Navbar = () => {
             </ul>
           </div>
         ) : (
-          // Logged Out: Login + Get Started Dropdown
           <div className="hidden lg:flex items-center gap-3">
             <Link
               to="/login"
@@ -344,8 +362,6 @@ const Navbar = () => {
             >
               Login
             </Link>
-
-            {/* Custom Hover Dropdown for Join */}
             <div
               className="relative"
               onMouseEnter={() => setIsJoinDropdownOpen(true)}
@@ -359,7 +375,6 @@ const Navbar = () => {
                   }`}
                 />
               </button>
-
               <AnimatePresence>
                 {isJoinDropdownOpen && (
                   <motion.div
@@ -386,7 +401,6 @@ const Navbar = () => {
                           </p>
                         </div>
                       </Link>
-
                       <Link
                         to="/join-employee"
                         className="flex items-start gap-3 p-3 hover:bg-base-200 rounded-lg transition-colors group"
