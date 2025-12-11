@@ -33,7 +33,7 @@ const HeroSection = () => {
   };
 
   return (
-    <div className="hero min-h-[90vh] bg-base-100 relative overflow-hidden">
+    <div className="hero pt-16 min-h-[90vh] bg-base-100 relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
         <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-blue-600/20 blur-[100px] animate-pulse"></div>
         <div className="absolute top-[20%] -right-[10%] w-[30%] h-[30%] rounded-full bg-violet-600/20 blur-[100px]"></div>

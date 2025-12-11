@@ -1,8 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import useAuth from "../../hooks/useAuth.jsx";
 import useRole from "../../hooks/useRole";
-import { IoMoon, IoSunny } from "react-icons/io5";
+import {
+  IoMoon,
+  IoSunny,
+  IoLogOutOutline,
+  IoPersonOutline,
+  IoBriefcaseOutline,
+  IoPeopleOutline,
+  IoCubeOutline,
+  IoAddCircleOutline,
+  IoListOutline,
+  IoRocketOutline,
+  IoChevronDown,
+  IoLogInOutline,
+} from "react-icons/io5";
 import toast from "react-hot-toast";
 
 const Navbar = () => {
@@ -10,6 +24,18 @@ const Navbar = () => {
   const [role] = useRole();
   const navigate = useNavigate();
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isJoinDropdownOpen, setIsJoinDropdownOpen] = useState(false);
+
+  // Scroll Detection for Glass Effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Theme Toggle Logic
   useEffect(() => {
@@ -31,74 +57,157 @@ const Navbar = () => {
     }
   };
 
-  // --- MENU LINKS GENERATION BASED ON ROLE ---
+  // Custom NavItem Component
+  const NavItem = ({ to, children }) => (
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `relative font-medium transition-colors duration-300 ${
+          isActive ? "text-primary" : "text-base-content/70 hover:text-primary"
+        }`
+      }
+    >
+      {({ isActive }) => (
+        <>
+          {children}
+          {isActive && (
+            <motion.span
+              layoutId="underline"
+              className="absolute left-0 -bottom-1 w-full h-0.5 bg-gradient-to-r from-blue-600 to-violet-600"
+            />
+          )}
+        </>
+      )}
+    </NavLink>
+  );
+
+  // --- MENU LINKS GENERATION ---
+
+  // 1. Center Menu (Public)
   const publicLinks = (
     <>
       <li>
-        <NavLink to="/">Home</NavLink>
+        <NavItem to="/">Home</NavItem>
       </li>
-      {!user && (
-        <>
-          <li>
-            <NavLink to="/join-employee">Join as Employee</NavLink>
-          </li>
-          <li>
-            <NavLink to="/join-hr">Join as HR Manager</NavLink>
-          </li>
-        </>
-      )}
+      <li>
+        <NavItem to="#features">Features</NavItem>
+      </li>
+      <li>
+        <NavItem to="#pricing">Pricing</NavItem>
+      </li>
+      <li>
+        <NavItem to="/about">About Us</NavItem>
+      </li>
+      <li>
+        <NavItem to="/contact">Contact</NavItem>
+      </li>
     </>
   );
 
+  // 2. Employee Dashboard Links
   const employeeLinks = (
     <>
       <li>
-        <NavLink to="/my-assets">My Assets</NavLink>
+        <NavLink to="/my-assets" className="justify-between">
+          <span className="flex items-center gap-2">
+            <IoCubeOutline /> My Assets
+          </span>
+        </NavLink>
       </li>
       <li>
-        <NavLink to="/my-team">My Team</NavLink>
+        <NavLink to="/my-team" className="justify-between">
+          <span className="flex items-center gap-2">
+            <IoPeopleOutline /> My Team
+          </span>
+        </NavLink>
       </li>
       <li>
-        <NavLink to="/request-asset">Request Asset</NavLink>
+        <NavLink to="/request-asset" className="justify-between">
+          <span className="flex items-center gap-2">
+            <IoAddCircleOutline /> Request Asset
+          </span>
+        </NavLink>
       </li>
       <li>
-        <NavLink to="/profile">Profile</NavLink>
+        <NavLink to="/profile" className="justify-between">
+          <span className="flex items-center gap-2">
+            <IoPersonOutline /> Profile
+          </span>
+        </NavLink>
       </li>
     </>
   );
 
+  // 3. HR Dashboard Links
   const hrLinks = (
     <>
       <li>
-        <NavLink to="/asset-list">Asset List</NavLink>
+        <NavLink to="/asset-list">
+          <span className="flex items-center gap-2">
+            <IoListOutline /> Asset List
+          </span>
+        </NavLink>
       </li>
       <li>
-        <NavLink to="/add-asset">Add Asset</NavLink>
+        <NavLink to="/add-asset">
+          <span className="flex items-center gap-2">
+            <IoAddCircleOutline /> Add Asset
+          </span>
+        </NavLink>
       </li>
       <li>
-        <NavLink to="/all-requests">All Requests</NavLink>
+        <NavLink to="/all-requests">
+          <span className="flex items-center gap-2">
+            <IoBriefcaseOutline /> All Requests
+          </span>
+        </NavLink>
       </li>
       <li>
-        <NavLink to="/my-employee-list">Employee List</NavLink>
+        <NavLink to="/my-employee-list">
+          <span className="flex items-center gap-2">
+            <IoPeopleOutline /> Employee List
+          </span>
+        </NavLink>
       </li>
       <li>
-        <NavLink to="/upgrade-package">Upgrade Package</NavLink>
+        <NavLink to="/upgrade-package">
+          <span className="flex items-center gap-2">
+            <IoRocketOutline className="text-secondary" /> Upgrade Package
+          </span>
+        </NavLink>
       </li>
-
       <li>
-        <NavLink to="/profile">Profile</NavLink>
+        <NavLink to="/profile">
+          <span className="flex items-center gap-2">
+            <IoPersonOutline /> Profile
+          </span>
+        </NavLink>
       </li>
     </>
   );
 
   return (
-    <div className="navbar bg-base-100 shadow-sm fixed z-50 px-4 sm:px-8">
+    <motion.nav
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      className={`navbar fixed top-0 z-50 w-full px-4 sm:px-8 transition-all duration-300 ${
+        isScrolled
+          ? "bg-base-100/80 backdrop-blur-md shadow-lg border-b border-base-200 py-2"
+          : "bg-transparent py-4"
+      }`}
+    >
       <div className="navbar-start">
-        <div className="dropdown">
-          <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
+        {/* Mobile Dropdown */}
+        <div className="dropdown lg:hidden">
+          <div
+            tabIndex={0}
+            role="button"
+            className="btn btn-ghost btn-circle"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
+              className="h-6 w-6"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -111,48 +220,80 @@ const Navbar = () => {
               />
             </svg>
           </div>
-          <ul
-            tabIndex={0}
-            className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
-          >
-            {publicLinks}
-          </ul>
+          <AnimatePresence>
+            {isMobileMenuOpen && (
+              <ul
+                tabIndex={0}
+                className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow-xl bg-base-100 rounded-box w-64 border border-base-200"
+              >
+                {publicLinks}
+                {/* Mobile Extra Links for Join */}
+                {!user && (
+                  <>
+                    <div className="divider my-1"></div>
+                    <li className="menu-title">Join AssetVerse</li>
+                    <li>
+                      <NavLink to="/join-hr">
+                        <IoBriefcaseOutline /> Join as HR Manager
+                      </NavLink>
+                    </li>
+                    <li>
+                      <NavLink to="/join-employee">
+                        <IoPeopleOutline /> Join as Employee
+                      </NavLink>
+                    </li>
+                    <li>
+                      <NavLink to="/login" className="text-primary">
+                        <IoLogInOutline /> Login
+                      </NavLink>
+                    </li>
+                  </>
+                )}
+              </ul>
+            )}
+          </AnimatePresence>
         </div>
-        <Link
-          to="/"
-          className="btn btn-ghost text-2xl font-bold text-primary gap-0"
-        >
-          Asset<span className="text-secondary">Verse</span>
+
+        {/* Brand Logo with Image */}
+        <Link to="/" className="flex items-center gap-2">
+          <img
+            src="/navlogo.png"
+            alt="AssetVerse Logo"
+            className="h-20 w-auto object-contain hover:scale-105 transition-transform duration-300"
+          />
         </Link>
       </div>
 
+      {/* Center Menu (Desktop) */}
       <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1 gap-2 font-medium">
+        <ul className="menu menu-horizontal px-1 gap-8 text-base font-medium">
           {publicLinks}
         </ul>
       </div>
 
+      {/* Right Side Actions */}
       <div className="navbar-end gap-3">
         {/* Theme Toggle */}
-        <label className="swap swap-rotate hover:scale-110 transition-transform">
+        <label className="swap swap-rotate btn btn-ghost btn-circle hover:bg-base-200 text-base-content">
           <input
             type="checkbox"
             onChange={handleToggle}
             checked={theme === "dark"}
           />
-          <IoSunny className="swap-on fill-current w-6 h-6 text-yellow-500" />
-          <IoMoon className="swap-off fill-current w-6 h-6 text-gray-500" />
+          <IoSunny className="swap-on w-6 h-6 text-yellow-500" />
+          <IoMoon className="swap-off w-5 h-5" />
         </label>
 
-        {/* Authenticated User Menu */}
+        {/* Auth Logic */}
         {user ? (
+          // Logged In: Profile Dropdown
           <div className="dropdown dropdown-end">
             <div
               tabIndex={0}
               role="button"
-              className="btn btn-ghost btn-circle avatar online"
+              className="btn btn-ghost btn-circle avatar online ring-2 ring-transparent hover:ring-primary transition-all duration-300"
             >
-              <div className="w-10 rounded-full border border-primary ring ring-primary ring-offset-base-100 ring-offset-2">
+              <div className="w-10 rounded-full">
                 <img
                   alt="User"
                   src={
@@ -162,37 +303,115 @@ const Navbar = () => {
                 />
               </div>
             </div>
+
             <ul
               tabIndex={0}
-              className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
+              className="menu menu-sm dropdown-content mt-4 z-[1] p-3 shadow-2xl bg-base-100 rounded-2xl w-64 border border-base-200 animate-in fade-in slide-in-from-top-5 duration-200"
             >
-              <li className="menu-title text-center">{user?.displayName}</li>
-              <div className="divider my-0"></div>
+              <li className="pointer-events-none mb-2">
+                <div className="flex flex-col items-start gap-1 p-2 bg-base-200/50 rounded-xl">
+                  <span className="font-bold text-base">
+                    {user?.displayName}
+                  </span>
+                  <span className="text-xs uppercase tracking-wider opacity-60 font-semibold badge badge-sm badge-outline">
+                    {role || "Verifying..."}
+                  </span>
+                </div>
+              </li>
 
-              {/* Role Based Dropdown Items */}
-              {role === "hr" && hrLinks}
-              {role === "employee" && employeeLinks}
-              {!role && (
-                <li>
-                  <span className="text-warning">Verifying Role...</span>
-                </li>
-              )}
-
-              <div className="divider my-0"></div>
+              <div className="divider my-1"></div>
+              <div className="space-y-1">
+                {role === "hr" && hrLinks}
+                {role === "employee" && employeeLinks}
+              </div>
+              <div className="divider my-1"></div>
               <li>
-                <button onClick={handleLogout} className="text-error font-bold">
-                  Logout
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 text-error hover:bg-error/10 hover:text-error font-semibold"
+                >
+                  <IoLogOutOutline className="text-lg" /> Logout
                 </button>
               </li>
             </ul>
           </div>
         ) : (
-          <Link to="/login" className="btn btn-primary btn-sm rounded-md">
-            Login
-          </Link>
+          // Logged Out: Login + Get Started Dropdown
+          <div className="hidden lg:flex items-center gap-3">
+            <Link
+              to="/login"
+              className="btn btn-ghost font-medium hover:bg-base-200"
+            >
+              Login
+            </Link>
+
+            {/* Custom Hover Dropdown for Join */}
+            <div
+              className="relative"
+              onMouseEnter={() => setIsJoinDropdownOpen(true)}
+              onMouseLeave={() => setIsJoinDropdownOpen(false)}
+            >
+              <button className="btn btn-primary px-6 rounded-full bg-gradient-to-r from-blue-600 to-violet-600 border-none text-white hover:shadow-lg hover:shadow-blue-500/30 flex items-center gap-2">
+                Get Started{" "}
+                <IoChevronDown
+                  className={`transition-transform duration-300 ${
+                    isJoinDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              <AnimatePresence>
+                {isJoinDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 15 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 top-full mt-2 w-72 bg-base-100 rounded-xl shadow-2xl border border-base-200 overflow-hidden"
+                  >
+                    <div className="p-2">
+                      <Link
+                        to="/join-hr"
+                        className="flex items-start gap-3 p-3 hover:bg-base-200 rounded-lg transition-colors group"
+                      >
+                        <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                          <IoBriefcaseOutline className="text-xl" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-sm text-base-content">
+                            Join as HR Manager
+                          </p>
+                          <p className="text-xs text-base-content/60">
+                            Manage assets & teams
+                          </p>
+                        </div>
+                      </Link>
+
+                      <Link
+                        to="/join-employee"
+                        className="flex items-start gap-3 p-3 hover:bg-base-200 rounded-lg transition-colors group"
+                      >
+                        <div className="p-2 bg-violet-100 dark:bg-violet-900/30 text-violet-600 rounded-lg group-hover:bg-violet-600 group-hover:text-white transition-colors">
+                          <IoPeopleOutline className="text-xl" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-sm text-base-content">
+                            Join as Employee
+                          </p>
+                          <p className="text-xs text-base-content/60">
+                            Request & track items
+                          </p>
+                        </div>
+                      </Link>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
         )}
       </div>
-    </div>
+    </motion.nav>
   );
 };
 
