@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 
 const Navbar = () => {
   const { user, logOut } = useAuth();
-  const [role] = useRole(); 
+  const [role] = useRole();
   const navigate = useNavigate();
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
 
@@ -81,6 +81,10 @@ const Navbar = () => {
       <li>
         <NavLink to="/my-employee-list">Employee List</NavLink>
       </li>
+      <li>
+        <NavLink to="/upgrade-package">Upgrade Package</NavLink>
+      </li>
+
       <li>
         <NavLink to="/profile">Profile</NavLink>
       </li>

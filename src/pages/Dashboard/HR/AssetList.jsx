@@ -1,29 +1,36 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Helmet } from "react-helmet-async";
-import { FaEdit, FaTrash, FaSearch } from "react-icons/fa";
-import Swal from "sweetalert2"; 
+import {
+  FaEdit,
+  FaTrash,
+  FaSearch,
+  FaChevronLeft,
+  FaChevronRight,
+} from "react-icons/fa";
 import toast from "react-hot-toast";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import useAuth from "../../../hooks/useAuth";
+import HrStats from "../../../components/Dashboard/HrStats";
 
 const AssetList = () => {
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(0); // Pagination State
+  const itemsPerPage = 10; // Limit per page
 
-  // Fetch Assets Data
+  // Fetch Assets Data with Pagination Params
   const {
     data: assets = [],
     refetch,
     isLoading,
   } = useQuery({
-    queryKey: ["assets", user?.email, search, filter],
+    queryKey: ["assets", user?.email, search, filter, currentPage],
     queryFn: async () => {
-      // HR sees their own assets
       const res = await axiosSecure.get(
-        `/assets?email=${user.email}&search=${search}&filter=${filter}`
+        `/assets?email=${user.email}&search=${search}&filter=${filter}&page=${currentPage}&limit=${itemsPerPage}`
       );
       return res.data;
     },
@@ -45,8 +52,20 @@ const AssetList = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    const searchText = e.target.search.value;
-    setSearch(searchText);
+    setSearch(e.target.search.value);
+    setCurrentPage(0); // Reset to first page on search
+  };
+
+  const handleNext = () => {
+    if (assets.length === itemsPerPage) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentPage > 0) {
+      setCurrentPage((prev) => prev - 1);
+    }
   };
 
   if (isLoading)
@@ -62,13 +81,11 @@ const AssetList = () => {
         <title>AssetVerse | Asset List</title>
       </Helmet>
 
+      {/* Charts Section */}
+      <HrStats />
+
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <h2 className="text-3xl font-bold text-primary">
-          Asset Inventory{" "}
-          <span className="text-sm badge badge-secondary">
-            {assets.length} Items
-          </span>
-        </h2>
+        <h2 className="text-3xl font-bold text-primary">Asset Inventory</h2>
 
         {/* Search & Filter */}
         <div className="flex gap-2">
@@ -84,7 +101,10 @@ const AssetList = () => {
           </form>
 
           <select
-            onChange={(e) => setFilter(e.target.value)}
+            onChange={(e) => {
+              setFilter(e.target.value);
+              setCurrentPage(0);
+            }}
             className="select select-bordered"
           >
             <option value="">All Types</option>
@@ -95,7 +115,7 @@ const AssetList = () => {
       </div>
 
       {/* Assets Table */}
-      <div className="overflow-x-auto shadow-xl rounded-lg border border-base-200">
+      <div className="overflow-x-auto shadow-xl rounded-lg border border-base-200 min-h-[400px]">
         <table className="table w-full">
           <thead className="bg-base-200 text-base">
             <tr>
@@ -110,7 +130,7 @@ const AssetList = () => {
           <tbody>
             {assets.map((asset, index) => (
               <tr key={asset._id} className="hover:bg-base-100">
-                <td>{index + 1}</td>
+                <td>{currentPage * itemsPerPage + index + 1}</td>
                 <td>
                   <div className="flex items-center gap-3">
                     <div className="avatar">
@@ -118,9 +138,7 @@ const AssetList = () => {
                         <img src={asset.productImage} alt={asset.productName} />
                       </div>
                     </div>
-                    <div>
-                      <div className="font-bold">{asset.productName}</div>
-                    </div>
+                    <div className="font-bold">{asset.productName}</div>
                   </div>
                 </td>
                 <td>
@@ -155,9 +173,30 @@ const AssetList = () => {
         </table>
         {assets.length === 0 && (
           <div className="text-center p-10 text-gray-500">
-            No Assets Found. Add some!
+            No Assets Found on this page.
           </div>
         )}
+      </div>
+
+      {/* Pagination Controls */}
+      <div className="flex justify-center mt-6 gap-4">
+        <button
+          onClick={handlePrev}
+          disabled={currentPage === 0}
+          className="btn btn-outline"
+        >
+          <FaChevronLeft /> Previous
+        </button>
+        <span className="btn btn-ghost no-animation">
+          Page {currentPage + 1}
+        </span>
+        <button
+          onClick={handleNext}
+          disabled={assets.length < itemsPerPage}
+          className="btn btn-outline"
+        >
+          Next <FaChevronRight />
+        </button>
       </div>
     </div>
   );
