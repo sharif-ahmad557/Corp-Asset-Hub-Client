@@ -3,16 +3,19 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Helmet } from "react-helmet-async";
 import { FcGoogle } from "react-icons/fc";
+import { IoBriefcaseOutline, IoPeopleOutline } from "react-icons/io5";
 import toast from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
-
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 
 const Login = () => {
   const { signIn, googleSignIn } = useAuth();
+  const axiosPublic = useAxiosPublic();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
   const [loading, setLoading] = useState(false);
+  const [googleUser, setGoogleUser] = useState(null);
 
   const {
     register,
@@ -20,6 +23,7 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
+  // 1. Email/Password Login
   const onSubmit = async (data) => {
     setLoading(true);
     try {
@@ -32,14 +36,42 @@ const Login = () => {
     }
   };
 
+  // 2. Google Login Trigger
   const handleGoogleLogin = async () => {
     try {
-      await googleSignIn();
-      // Note: In real app, we might need to save Google user to DB here if first time
-      toast.success("Google Login Successful");
-      navigate(from, { replace: true });
+      const result = await googleSignIn();
+      setGoogleUser(result.user);
+
+      document.getElementById("role_modal").showModal();
     } catch (error) {
       toast.error(error.message);
+    }
+  };
+
+  // 3. Handle Role Selection
+  const handleRoleSelect = async (selectedRole) => {
+    if (!googleUser) return;
+
+    if (selectedRole === "employee") {
+      const userInfo = {
+        name: googleUser.displayName,
+        email: googleUser.email,
+        role: "employee",
+        dateOfBirth: null, // Google doesn't give DOB
+        createdAt: new Date(),
+      };
+
+      try {
+        await axiosPublic.post("/users", userInfo);
+        toast.success("Login Successful as Employee");
+        navigate(from, { replace: true });
+      } catch (err) {
+        console.error(err);
+      }
+    } else if (selectedRole === "hr") {
+      document.getElementById("role_modal").close();
+      navigate("/join-hr");
+      toast("Please complete HR registration", { icon: "📝" });
     }
   };
 
@@ -58,6 +90,7 @@ const Login = () => {
         </div>
         <div className="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
           <form onSubmit={handleSubmit(onSubmit)} className="card-body">
+            {/* Email Input */}
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Email</span>
@@ -72,6 +105,8 @@ const Login = () => {
                 <span className="text-error text-sm">Email is required</span>
               )}
             </div>
+
+            {/* Password Input */}
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Password</span>
@@ -86,6 +121,7 @@ const Login = () => {
                 <span className="text-error text-sm">Password is required</span>
               )}
             </div>
+
             <div className="form-control mt-6">
               <button disabled={loading} className="btn btn-primary">
                 {loading ? (
@@ -119,6 +155,55 @@ const Login = () => {
           </form>
         </div>
       </div>
+
+      {/* --- ROLE SELECTION MODAL --- */}
+      <dialog id="role_modal" className="modal modal-bottom sm:modal-middle">
+        <div className="modal-box text-center">
+          <h3 className="font-bold text-2xl text-primary mb-4">
+            Welcome to AssetVerse!
+          </h3>
+          <p className="py-2 text-gray-500">
+            Please select how you want to continue:
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
+            {/* Employee Option */}
+            <button
+              onClick={() => handleRoleSelect("employee")}
+              className="btn h-auto py-4 flex-1 flex-col gap-2 btn-outline hover:btn-primary"
+            >
+              <IoPeopleOutline className="text-4xl" />
+              <span>
+                Continue as
+                <br />
+                <strong className="text-lg">Employee</strong>
+              </span>
+            </button>
+
+            {/* HR Option */}
+            <button
+              onClick={() => handleRoleSelect("hr")}
+              className="btn h-auto py-4 flex-1 flex-col gap-2 btn-outline hover:btn-secondary"
+            >
+              <IoBriefcaseOutline className="text-4xl" />
+              <span>
+                Register as
+                <br />
+                <strong className="text-lg">HR Manager</strong>
+              </span>
+            </button>
+          </div>
+
+          <div className="modal-action justify-center">
+            <form method="dialog">
+              <button className="btn btn-ghost btn-sm">Cancel</button>
+            </form>
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
     </div>
   );
 };

@@ -5,6 +5,7 @@ import { useReactToPrint } from "react-to-print";
 import toast from "react-hot-toast";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import useAuth from "../../../hooks/useAuth";
+import { IoPrintOutline } from "react-icons/io5";
 
 const MyAssets = () => {
   const axiosSecure = useAxiosSecure();
@@ -26,10 +27,8 @@ const MyAssets = () => {
 
   // Handle Cancel Request
   const handleCancel = async (id) => {
-    
-    toast.error(
-      "Cancellation logic not implemented in backend yet for safety."
-    );
+    // Backend logic implementation required for safety
+    toast.error("Cancellation logic requires backend implementation.");
   };
 
   // Handle Return Asset
@@ -54,7 +53,7 @@ const MyAssets = () => {
   if (isLoading)
     return (
       <div className="text-center mt-20">
-        <span className="loading loading-spinner loading-lg"></span>
+        <span className="loading loading-spinner loading-lg text-primary"></span>
       </div>
     );
 
@@ -64,63 +63,95 @@ const MyAssets = () => {
         <title>AssetVerse | My Assets</title>
       </Helmet>
 
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-primary">My Assets Status</h2>
-        <button onClick={handlePrint} className="btn btn-secondary">
-          Print Asset List
+      {/* Page Header */}
+      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <div>
+          <h2 className="text-3xl font-bold text-primary">My Assets</h2>
+          <p className="text-base-content/70">
+            Manage and track your requested items
+          </p>
+        </div>
+        <button
+          onClick={handlePrint}
+          className="btn btn-secondary shadow-lg hover:scale-105 transition-transform"
+        >
+          <IoPrintOutline className="text-xl" /> Print Asset List
         </button>
       </div>
 
-      {/* Printable Area */}
-      <div ref={componentRef} className="p-4 bg-white rounded-lg">
-        <div className="hidden print:block text-center mb-4">
-          <h1 className="text-2xl font-bold">
-            AssetVerse - Employee Asset Report
-          </h1>
-          <p>Employee: {user?.displayName}</p>
+      {/* Main Content Card - Updated for Theme Consistency */}
+      <div
+        ref={componentRef}
+        className="bg-base-100 rounded-xl shadow-xl border border-base-200 p-6"
+      >
+        {/* Header for Print View Only */}
+        <div className="hidden print:block text-center mb-8 text-black">
+          <h1 className="text-3xl font-bold">AssetVerse</h1>
+          <h2 className="text-xl text-gray-600">Employee Asset Report</h2>
+          <div className="divider my-2"></div>
+          <p className="font-bold text-lg">
+            Employee Name: {user?.displayName}
+          </p>
+          <p className="text-sm">Email: {user?.email}</p>
+          <p className="text-sm">Date: {new Date().toLocaleDateString()}</p>
         </div>
 
-        <div className="overflow-x-auto border rounded-lg">
+        <div className="overflow-x-auto">
           <table className="table w-full">
-            <thead className="bg-base-200">
+            {/* Table Head - Using Theme Colors */}
+            <thead className="bg-base-200 text-base-content text-sm uppercase">
               <tr>
                 <th>Asset Name</th>
                 <th>Type</th>
                 <th>Request Date</th>
                 <th>Approval Date</th>
                 <th>Status</th>
-                <th className="print:hidden">Action</th>
+                <th className="print:hidden text-center">Action</th>
               </tr>
             </thead>
+
             <tbody>
               {myRequests.map((req) => (
-                <tr key={req._id}>
-                  <td className="font-bold">{req.assetName}</td>
-                  <td>{req.assetType}</td>
-                  <td>{new Date(req.requestDate).toLocaleDateString()}</td>
+                <tr
+                  key={req._id}
+                  className="hover:bg-base-200/50 transition-colors border-b border-base-200 last:border-none"
+                >
+                  <td className="font-bold text-base-content">
+                    {req.assetName}
+                  </td>
                   <td>
-                    {req.approvalDate
-                      ? new Date(req.approvalDate).toLocaleDateString()
-                      : "N/A"}
+                    <span className="badge badge-ghost badge-sm">
+                      {req.assetType}
+                    </span>
+                  </td>
+                  <td className="text-base-content/80">
+                    {new Date(req.requestDate).toLocaleDateString()}
+                  </td>
+                  <td className="text-base-content/80">
+                    {req.approvalDate ? (
+                      new Date(req.approvalDate).toLocaleDateString()
+                    ) : (
+                      <span className="text-gray-400 italic">Pending</span>
+                    )}
                   </td>
                   <td>
                     <div
-                      className={`badge ${
+                      className={`badge font-bold ${
                         req.requestStatus === "approved"
                           ? "badge-success text-white"
                           : req.requestStatus === "rejected"
                           ? "badge-error text-white"
-                          : "badge-warning"
+                          : "badge-warning text-white"
                       }`}
                     >
-                      {req.requestStatus}
+                      {req.requestStatus.toUpperCase()}
                     </div>
                   </td>
-                  <td className="print:hidden">
+                  <td className="print:hidden text-center">
                     {req.requestStatus === "pending" && (
                       <button
                         onClick={() => handleCancel(req._id)}
-                        className="btn btn-xs btn-outline btn-error"
+                        className="btn btn-sm btn-outline btn-error hover:text-white"
                       >
                         Cancel
                       </button>
@@ -129,17 +160,31 @@ const MyAssets = () => {
                       req.assetType === "Returnable" && (
                         <button
                           onClick={() => handleReturn(req._id)}
-                          className="btn btn-xs btn-primary"
+                          className="btn btn-sm btn-primary text-white"
                         >
                           Return
                         </button>
                       )}
+                    {req.requestStatus === "returned" && (
+                      <span className="text-xs text-gray-500 font-medium">
+                        Returned
+                      </span>
+                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+
+        {/* Empty State */}
+        {myRequests.length === 0 && (
+          <div className="text-center py-16">
+            <p className="text-lg text-base-content/60">
+              You haven't requested any assets yet.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
