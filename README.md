@@ -7,8 +7,8 @@
 ## 🔗 Live Links
 
 - **Live Site URL:** [Insert Your Live Site Link Here] (e.g., Netlify/Vercel)
-- **Client Repository:** [Insert GitHub Client Repo Link]
-- **Server Repository:** [Insert GitHub Server Repo Link]
+- **Client Repository:** [https://github.com/sharif-ahmad557/Corp-Asset-Hub-Client]
+- **Server Repository:** [https://github.com/sharif-ahmad557/Corp-Asset-Hub-Server]
 
 ---
 
@@ -88,18 +88,10 @@ You can use these credentials to test the HR features without registering:
 To run this project locally, follow these steps:
 
 1. **Clone the repository:**
+
    ```bash
    git clone [Your Client Repo URL]
    cd corpAsset-hub-client
    npm install
-   VITE_apiKey=your_api_key
-   VITE_authDomain=your_auth_domain
-   ...
-   npm run dev
+
    ```
-
-### 💡 টিপস:
-
-1.  **`[Insert Your Live Site Link Here]`** এর জায়গায় আপনার Vercel বা Netlify এর লিংক দিন।
-2.  **`[Your Name]`** এর জায়গায় আপনার নাম দিন।
-3.  যদি গিটহাবে পুশ করেন, তাহলে এই ফাইলটি আপনার রিপোজিটরির মেইন পেজে সুন্দরভাবে শো করবে।
