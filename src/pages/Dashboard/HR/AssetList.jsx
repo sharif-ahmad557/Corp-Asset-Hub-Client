@@ -7,10 +7,12 @@ import {
   FaSearch,
   FaChevronLeft,
   FaChevronRight,
+  FaEye,
 } from "react-icons/fa";
 import toast from "react-hot-toast";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import useAuth from "../../../hooks/useAuth";
+import { Link } from "react-router-dom";
 import HrStats from "../../../components/Dashboard/HrStats";
 
 const AssetList = () => {
@@ -18,10 +20,10 @@ const AssetList = () => {
   const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("");
-  const [currentPage, setCurrentPage] = useState(0); // Pagination State
-  const itemsPerPage = 10; // Limit per page
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 10;
 
-  // Fetch Assets Data with Pagination Params
+  // Fetch Assets
   const {
     data: assets = [],
     refetch,
@@ -36,9 +38,9 @@ const AssetList = () => {
     },
   });
 
+  // Delete Asset
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this asset?")) return;
-
     try {
       const res = await axiosSecure.delete(`/assets/${id}`);
       if (res.data.deletedCount > 0) {
@@ -53,7 +55,7 @@ const AssetList = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     setSearch(e.target.search.value);
-    setCurrentPage(0); // Reset to first page on search
+    setCurrentPage(0);
   };
 
   const handleNext = () => {
@@ -71,7 +73,7 @@ const AssetList = () => {
   if (isLoading)
     return (
       <div className="text-center mt-20">
-        <span className="loading loading-bars loading-lg"></span>
+        <span className="loading loading-bars loading-lg" />
       </div>
     );
 
@@ -81,13 +83,14 @@ const AssetList = () => {
         <title>AssetVerse | Asset List</title>
       </Helmet>
 
-      {/* Charts Section */}
+      {/* Stats */}
       <HrStats />
 
+      {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <h2 className="text-3xl font-bold text-primary">Asset Inventory</h2>
 
-        {/* Search & Filter */}
+        {/* Search + Filter */}
         <div className="flex gap-2">
           <form onSubmit={handleSearch} className="join">
             <input
@@ -114,7 +117,7 @@ const AssetList = () => {
         </div>
       </div>
 
-      {/* Assets Table */}
+      {/* Table */}
       <div className="overflow-x-auto shadow-xl rounded-lg border border-base-200 min-h-[400px]">
         <table className="table w-full">
           <thead className="bg-base-200 text-base">
@@ -127,10 +130,13 @@ const AssetList = () => {
               <th>Actions</th>
             </tr>
           </thead>
+
           <tbody>
             {assets.map((asset, index) => (
               <tr key={asset._id} className="hover:bg-base-100">
                 <td>{currentPage * itemsPerPage + index + 1}</td>
+
+                {/* Product */}
                 <td>
                   <div className="flex items-center gap-3">
                     <div className="avatar">
@@ -141,6 +147,8 @@ const AssetList = () => {
                     <div className="font-bold">{asset.productName}</div>
                   </div>
                 </td>
+
+                {/* Type */}
                 <td>
                   <span
                     className={`badge ${
@@ -152,14 +160,32 @@ const AssetList = () => {
                     {asset.productType}
                   </span>
                 </td>
+
+                {/* Quantity */}
                 <td className="font-bold text-lg text-center">
                   {asset.productQuantity}
                 </td>
+
+                {/* Date */}
                 <td>{new Date(asset.dateAdded).toLocaleDateString()}</td>
-                <td>
+
+                {/* ACTIONS */}
+                <td className="flex items-center gap-2">
+                  {/* 🔍 View Details */}
+                  <Link
+                    to={`/asset-details/${asset._id}`}
+                    className="btn btn-ghost btn-sm text-base-content/70 hover:text-primary tooltip"
+                    data-tip="View Details"
+                  >
+                    <FaEye className="text-lg" />
+                  </Link>
+
+                  {/* ✏️ Edit */}
                   <button className="btn btn-ghost btn-sm text-info">
                     <FaEdit />
                   </button>
+
+                  {/* 🗑 Delete */}
                   <button
                     onClick={() => handleDelete(asset._id)}
                     className="btn btn-ghost btn-sm text-error"
@@ -171,6 +197,7 @@ const AssetList = () => {
             ))}
           </tbody>
         </table>
+
         {assets.length === 0 && (
           <div className="text-center p-10 text-gray-500">
             No Assets Found on this page.
@@ -178,7 +205,7 @@ const AssetList = () => {
         )}
       </div>
 
-      {/* Pagination Controls */}
+      {/* Pagination */}
       <div className="flex justify-center mt-6 gap-4">
         <button
           onClick={handlePrev}
@@ -187,9 +214,11 @@ const AssetList = () => {
         >
           <FaChevronLeft /> Previous
         </button>
+
         <span className="btn btn-ghost no-animation">
           Page {currentPage + 1}
         </span>
+
         <button
           onClick={handleNext}
           disabled={assets.length < itemsPerPage}

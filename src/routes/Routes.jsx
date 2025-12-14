@@ -21,9 +21,8 @@ import Contact from "../components/Shared/Contact.jsx";
 import Profile from "../pages/Dashboard/HR/Profile.jsx";
 import MyTeam from "../pages/Dashboard/Employee/MyTeam.jsx";
 import MyProfile from "../pages/Dashboard/Employee/Profile.jsx";
-
-
-
+import AssetDetails from "../pages/AssetDetails/AssetDetails.jsx";
+import PaymentHistory from "../pages/Dashboard/HR/Payment/PaymentHistory";
 
 export const router = createBrowserRouter([
   {
@@ -65,6 +64,14 @@ export const router = createBrowserRouter([
             <HRRoute>
               <AssetList />
             </HRRoute>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "asset-details/:id",
+        element: (
+          <PrivateRoute>
+            <AssetDetails />
           </PrivateRoute>
         ),
       },
@@ -146,6 +153,16 @@ export const router = createBrowserRouter([
           <PrivateRoute>
             <HRRoute>
               <Profile />
+            </HRRoute>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "payment-history",
+        element: (
+          <PrivateRoute>
+            <HRRoute>
+              <PaymentHistory />
             </HRRoute>
           </PrivateRoute>
         ),
