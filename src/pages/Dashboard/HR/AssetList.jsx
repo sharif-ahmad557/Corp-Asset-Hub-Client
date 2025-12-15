@@ -73,7 +73,7 @@ const AssetList = () => {
   if (isLoading)
     return (
       <div className="text-center mt-20">
-        <span className="loading loading-bars loading-lg" />
+        <span className="loading loading-bars loading-lg text-primary" />
       </div>
     );
 
@@ -172,6 +172,7 @@ const AssetList = () => {
                 {/* ACTIONS */}
                 <td className="flex items-center gap-2">
                   {/* 🔍 View Details */}
+                  {/* (Note: Ensure /asset-details/:id route exists in your Router) */}
                   <Link
                     to={`/asset-details/${asset._id}`}
                     className="btn btn-ghost btn-sm text-base-content/70 hover:text-primary tooltip"
@@ -180,15 +181,21 @@ const AssetList = () => {
                     <FaEye className="text-lg" />
                   </Link>
 
-                  {/* ✏️ Edit */}
-                  <button className="btn btn-ghost btn-sm text-info">
-                    <FaEdit />
-                  </button>
+                  {/* ✏️ Edit (Fixed Link) */}
+                  <Link to={`/assets/update/${asset._id}`}>
+                    <button
+                      className="btn btn-ghost btn-sm text-info tooltip"
+                      data-tip="Update Asset"
+                    >
+                      <FaEdit />
+                    </button>
+                  </Link>
 
                   {/* 🗑 Delete */}
                   <button
                     onClick={() => handleDelete(asset._id)}
-                    className="btn btn-ghost btn-sm text-error"
+                    className="btn btn-ghost btn-sm text-error tooltip"
+                    data-tip="Delete Asset"
                   >
                     <FaTrash />
                   </button>

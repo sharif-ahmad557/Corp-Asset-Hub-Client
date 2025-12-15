@@ -23,6 +23,7 @@ import MyTeam from "../pages/Dashboard/Employee/MyTeam.jsx";
 import MyProfile from "../pages/Dashboard/Employee/Profile.jsx";
 import AssetDetails from "../pages/AssetDetails/AssetDetails.jsx";
 import PaymentHistory from "../pages/Dashboard/HR/Payment/PaymentHistory";
+import UpdateAsset from "../pages/Dashboard/HR/UpdateAsset";
 
 export const router = createBrowserRouter([
   {
@@ -163,6 +164,16 @@ export const router = createBrowserRouter([
           <PrivateRoute>
             <HRRoute>
               <PaymentHistory />
+            </HRRoute>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "assets/update/:id",
+        element: (
+          <PrivateRoute>
+            <HRRoute>
+              <UpdateAsset />
             </HRRoute>
           </PrivateRoute>
         ),

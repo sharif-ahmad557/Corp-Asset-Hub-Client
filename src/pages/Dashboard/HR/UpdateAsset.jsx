@@ -1,45 +1,81 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate, useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Helmet } from "react-helmet-async";
 import toast from "react-hot-toast";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
-import useAuth from "../../../hooks/useAuth";
 
-const AddAsset = () => {
-  const { register, handleSubmit, reset } = useForm();
+const UpdateAsset = () => {
+  const { id } = useParams();
   const axiosSecure = useAxiosSecure();
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { register, handleSubmit, reset } = useForm();
+
+  // 1. Fetch Existing Data
+  const { data: asset = {}, isLoading } = useQuery({
+    queryKey: ["asset", id],
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/assets/${id}`);
+      return res.data;
+    },
+  });
+
+  // 2. Pre-fill form when data loads
+  useEffect(() => {
+    if (asset._id) {
+      reset({
+        productName: asset.productName,
+        productType: asset.productType,
+        productQuantity: asset.productQuantity,
+        productImage: asset.productImage,
+        // ডেসক্রিপশন ফিল্ড প্রি-ফিল করা হচ্ছে
+        description: asset.description || "",
+      });
+    }
+  }, [asset, reset]);
 
   const onSubmit = async (data) => {
-    const assetInfo = {
+    const updatedAsset = {
       productName: data.productName,
       productType: data.productType,
       productQuantity: parseInt(data.productQuantity),
-      // নিচে ডেসক্রিপশন ফিল্ড যোগ করা হলো
-      description: data.description,
-      dateAdded: new Date(),
-      hrEmail: user?.email,
       productImage: data.productImage,
+      description: data.description,
     };
 
     try {
-      const res = await axiosSecure.post("/assets", assetInfo);
-      if (res.data.insertedId) {
-        toast.success("Asset Added to Inventory");
-        reset();
+      const res = await axiosSecure.patch(`/assets/${id}`, updatedAsset);
+
+      if (res.data.modifiedCount > 0) {
+        toast.success("Asset Updated Successfully");
+        navigate("/asset-list");
+      } else if (res.data.matchedCount > 0) {
+        toast.success("Saved! (No changes were necessary)");
+        navigate("/asset-list");
+      } else {
+        toast.error("Update failed! Please try again.");
       }
     } catch (error) {
-      toast.error("Failed to add asset");
+      console.error(error);
+      toast.error("Failed to update asset");
     }
   };
+
+  if (isLoading)
+    return (
+      <div className="text-center mt-20">
+        <span className="loading loading-bars loading-lg text-primary"></span>
+      </div>
+    );
 
   return (
     <div className="max-w-2xl mx-auto my-10 bg-base-100 shadow-xl p-8 rounded-xl border border-primary/20">
       <Helmet>
-        <title>AssetVerse | Add Asset</title>
+        <title>AssetVerse | Update Asset</title>
       </Helmet>
       <h2 className="text-3xl font-bold text-center mb-8 text-primary">
-        Add New Asset
+        Update Asset
       </h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -49,12 +85,11 @@ const AddAsset = () => {
           <input
             {...register("productName", { required: true })}
             type="text"
-            placeholder="e.g. Macbook Pro M3"
             className="input input-bordered w-full"
           />
         </div>
 
-        {/* Product Type & Quantity Row */}
+        {/* Type & Qty */}
         <div className="flex gap-4">
           <div className="form-control w-1/2">
             <label className="label font-bold">Product Type</label>
@@ -69,39 +104,39 @@ const AddAsset = () => {
           <div className="form-control w-1/2">
             <label className="label font-bold">Quantity</label>
             <input
-              {...register("productQuantity", { required: true, min: 1 })}
+              {...register("productQuantity", { required: true })}
               type="number"
-              placeholder="0"
               className="input input-bordered w-full"
             />
           </div>
         </div>
 
-        {/* Product Image URL */}
+        {/* Image URL */}
         <div className="form-control">
           <label className="label font-bold">Product Image URL</label>
           <input
             {...register("productImage", { required: true })}
             type="url"
-            placeholder="https://..."
             className="input input-bordered w-full"
           />
         </div>
 
-        {/* --- NEW: Description Input --- */}
+        {/* --- NEW: Description Update Field --- */}
         <div className="form-control">
           <label className="label font-bold">Description</label>
           <textarea
             {...register("description")}
-            className="textarea textarea-bordered h-24"
-            placeholder="Short description of the asset..."
+            className="textarea textarea-bordered h-24 leading-relaxed"
+            placeholder="Update description here..."
           ></textarea>
         </div>
 
-        <button className="btn btn-primary w-full mt-4">Add Asset</button>
+        <button className="btn btn-primary w-full mt-4 text-white">
+          Update Asset Info
+        </button>
       </form>
     </div>
   );
 };
 
-export default AddAsset;
+export default UpdateAsset;

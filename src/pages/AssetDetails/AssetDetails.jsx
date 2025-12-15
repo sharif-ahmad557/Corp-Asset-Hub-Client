@@ -3,13 +3,12 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { FaArrowLeft, FaCalendarAlt, FaBoxOpen, FaTag } from "react-icons/fa";
-import useAxiosSecure from "../../hooks/useAxiosSecure"; // আপনার পাথ অনুযায়ী
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const AssetDetails = () => {
-  const { id } = useParams(); // URL থেকে ID নেওয়া
+  const { id } = useParams();
   const axiosSecure = useAxiosSecure();
 
-  // ডাটা ফেচ করা
   const { data: asset = {}, isLoading } = useQuery({
     queryKey: ["asset", id],
     queryFn: async () => {
@@ -72,8 +71,9 @@ const AssetDetails = () => {
               <h2 className="card-title text-4xl font-bold mb-2">
                 {asset.productName}
               </h2>
-              <p className="text-sm text-base-content/50 uppercase tracking-widest font-bold mb-6">
-                Added on: {new Date(asset.dateAdded).toLocaleDateString()}
+              <p className="text-sm text-base-content/50 uppercase tracking-widest font-bold mb-6 flex items-center gap-2">
+                <FaCalendarAlt /> Added on:{" "}
+                {new Date(asset.dateAdded).toLocaleDateString()}
               </p>
 
               <div className="divider"></div>
@@ -81,7 +81,7 @@ const AssetDetails = () => {
               {/* Info Grid */}
               <div className="space-y-4 mb-8">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-blue-100 text-blue-600 rounded-lg">
+                  <div className="p-3 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-lg">
                     <FaBoxOpen className="text-xl" />
                   </div>
                   <div>
@@ -95,7 +95,7 @@ const AssetDetails = () => {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-violet-100 text-violet-600 rounded-lg">
+                  <div className="p-3 bg-violet-100 dark:bg-violet-900/30 text-violet-600 rounded-lg">
                     <FaTag className="text-xl" />
                   </div>
                   <div>
@@ -107,14 +107,16 @@ const AssetDetails = () => {
                 </div>
               </div>
 
+              {/* Dynamic Description Section */}
               <div className="bg-base-200 p-6 rounded-xl">
                 <h3 className="font-bold mb-2 text-base-content/80">
                   Description:
                 </h3>
-                <p className="text-base-content/70 leading-relaxed">
-                  {/* যদি ডেসক্রিপশন ফিল্ড না থাকে তবে ডিফল্ট টেক্সট */}
-                  {asset.description ||
-                    "No detailed description provided for this asset. Please contact the HR department for more specific information regarding its usage and maintenance."}
+                {/* whitespace-pre-line ক্লাসটি লাইন ব্রেক সাপোর্ট করবে */}
+                <p className="text-base-content/70 leading-relaxed whitespace-pre-line">
+                  {asset.description
+                    ? asset.description
+                    : "No detailed description provided for this asset."}
                 </p>
               </div>
             </motion.div>
