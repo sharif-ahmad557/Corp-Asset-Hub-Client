@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { motion, useAnimation } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   FaQuoteRight,
   FaStar,
@@ -51,62 +51,73 @@ const TestimonialsSection = () => {
     },
     {
       id: 6,
-      name: "Sarah Jenkins",
-      role: "CTO, TechFlow Logistics",
+      name: "James Carter",
+      role: "CEO, Carter Industries",
       image:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop",
-      text: "AssetVerse has completely transformed how we track our hardware. The predictive maintenance feature alone saved us over $50k in the first quarter.",
+        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=200&auto=format&fit=crop",
+      text: "We reduced asset loss by 40% within the first six months. The ROI on this software is evident from day one.",
     },
     {
       id: 7,
-      name: "David Ross",
-      role: "Operations Manager, BuildCorp",
+      name: "Sophia Martinez",
+      role: "HR Director, GlobalTech",
       image:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop",
-      text: "The UI is incredibly intuitive. I didn't have to train my staff for weeks. The mobile scanning feature is a game-changer for our field agents.",
+        "https://images.unsplash.com/photo-1554151228-14d9def656ec?q=80&w=200&auto=format&fit=crop",
+      text: "Asset allocation used to be a nightmare during onboarding. Now, new employees get their gear assigned automatically.",
     },
     {
       id: 8,
-      name: "Emily Chen",
-      role: "Director of Procurement, Zenith Inc.",
+      name: "William Turner",
+      role: "Facility Manager, UrbanSpace",
       image:
-        "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop",
-      text: "Finally, an asset management system that scales with us. The API integration with our existing ERP was seamless and robust.",
+        "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop",
+      text: "Tracking furniture and equipment across 50 office locations is now manageable. The QR code generation is super fast.",
     },
     {
       id: 9,
-      name: "Michael Chang",
-      role: "Head of IT, NextGen Solutions",
+      name: "Olivia Kim",
+      role: "Finance Analyst, FinCorp",
       image:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop",
-      text: "Security was our main concern, and AssetVerse's role-based access control is top-notch. Highly recommended for enterprise use.",
+        "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=200&auto=format&fit=crop",
+      text: "Depreciation calculation is automatic now. It saves our finance team roughly 20 hours every month during audits.",
     },
     {
       id: 10,
-      name: "Lisa Wong",
-      role: "Logistics Lead, SwiftMove",
+      name: "Daniel Lee",
+      role: "IT Admin, CreativeStudio",
       image:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&auto=format&fit=crop",
-      text: "The real-time dashboard is addictive. I can see exactly where every asset is globally without making a single phone call.",
+        "https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=200&auto=format&fit=crop",
+      text: "The support team is amazing. Any issue we faced was resolved within hours. A truly customer-centric company.",
     },
   ];
 
-  // Logic for Carousel
+  // --- Logic for Carousel ---
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerScreen, setItemsPerScreen] = useState(3);
-  const controls = useAnimation();
 
-  // Responsive Check
+  // Responsive Check & Boundary Fix
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 768) setItemsPerScreen(1);
-      else if (window.innerWidth < 1024) setItemsPerScreen(2);
-      else setItemsPerScreen(3);
+      let items = 1;
+      if (window.innerWidth < 768) items = 1;
+      else if (window.innerWidth < 1024) items = 2;
+      else items = 3;
+
+      setItemsPerScreen(items);
+
+      // Fix: Ensure current index doesn't go out of bounds when resizing
+      const maxIdx = testimonials.length - items;
+      if (currentIndex > maxIdx) {
+        setCurrentIndex(maxIdx > 0 ? maxIdx : 0);
+      }
     };
-    handleResize(); // Init
+
+    handleResize(); // Initial call
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [currentIndex, testimonials.length]);
+
+  const maxIndex = Math.max(0, testimonials.length - itemsPerScreen);
 
   // Auto Play
   useEffect(() => {
@@ -114,9 +125,7 @@ const TestimonialsSection = () => {
       handleNext();
     }, 5000);
     return () => clearInterval(interval);
-  }, [currentIndex, itemsPerScreen]);
-
-  const maxIndex = testimonials.length - itemsPerScreen;
+  }, [currentIndex, itemsPerScreen, maxIndex]);
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
@@ -168,7 +177,6 @@ const TestimonialsSection = () => {
         <div className="relative group">
           {/* Main Slider Window */}
           <div className="overflow-hidden py-10 -my-10 px-2">
-            {" "}
             <motion.div
               className="flex gap-6"
               animate={{ x: `-${currentIndex * (100 / itemsPerScreen)}%` }}
@@ -177,8 +185,8 @@ const TestimonialsSection = () => {
               dragConstraints={{
                 right: 0,
                 left: -((testimonials.length - itemsPerScreen) * 400),
-              }} // Approx constraint
-              onDragEnd={(e, { offset, velocity }) => {
+              }}
+              onDragEnd={(e, { offset }) => {
                 const swipe = offset.x;
                 if (swipe < -50) handleNext();
                 else if (swipe > 50) handlePrev();
@@ -227,36 +235,42 @@ const TestimonialsSection = () => {
             </motion.div>
           </div>
 
-          <button
-            onClick={handlePrev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 md:-translate-x-full z-20 btn btn-circle btn-primary shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex"
-          >
-            <FaChevronLeft />
-          </button>
+          {/* FIX: Wrapper div handles positioning, Button handles click animation */}
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 z-20 hidden md:block">
+            <button
+              onClick={handlePrev}
+              className="btn btn-circle btn-primary shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300"
+              aria-label="Previous Slide"
+            >
+              <FaChevronLeft />
+            </button>
+          </div>
 
-          <button
-            onClick={handleNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 md:translate-x-full z-20 btn btn-circle btn-primary shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex"
-          >
-            <FaChevronRight />
-          </button>
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 z-20 hidden md:block">
+            <button
+              onClick={handleNext}
+              className="btn btn-circle btn-primary shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300"
+              aria-label="Next Slide"
+            >
+              <FaChevronRight />
+            </button>
+          </div>
         </div>
 
         {/* Pagination Dots */}
         <div className="flex justify-center gap-2 mt-8">
-          {Array.from({ length: testimonials.length - itemsPerScreen + 1 }).map(
-            (_, index) => (
-              <button
-                key={index}
-                onClick={() => handleDotClick(index)}
-                className={`h-2.5 rounded-full transition-all duration-300 ${
-                  currentIndex === index
-                    ? "w-8 bg-primary"
-                    : "w-2.5 bg-base-300 hover:bg-primary/50"
-                }`}
-              ></button>
-            )
-          )}
+          {Array.from({ length: maxIndex + 1 }).map((_, index) => (
+            <button
+              key={index}
+              onClick={() => handleDotClick(index)}
+              className={`h-2.5 rounded-full transition-all duration-300 ${
+                currentIndex === index
+                  ? "w-8 bg-primary"
+                  : "w-2.5 bg-base-300 hover:bg-primary/50"
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            ></button>
+          ))}
         </div>
       </div>
     </section>

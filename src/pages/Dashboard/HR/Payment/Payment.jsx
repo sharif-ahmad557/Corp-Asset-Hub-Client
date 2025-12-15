@@ -2,7 +2,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import React, { useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Link } from "react-router-dom"; // Link ইমপোর্ট করা হলো
+import { Link } from "react-router-dom"; 
 import CheckoutForm from "./CheckoutForm";
 import { FaHistory } from "react-icons/fa";
 
@@ -10,7 +10,6 @@ import { FaHistory } from "react-icons/fa";
 const stripePromise = loadStripe(import.meta.env.VITE_PAYMENT_GATEWAY_PK);
 
 const Payment = () => {
-  // 3 Packages as per requirement
   const packages = [
     { id: 1, name: "Basic (5 Members)", limit: 5, price: 5 },
     { id: 2, name: "Standard (10 Members)", limit: 10, price: 8 },
