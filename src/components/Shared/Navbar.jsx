@@ -27,10 +27,10 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
   const [isScrolled, setIsScrolled] = useState(false);
+
+  // States for Menus
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isJoinDropdownOpen, setIsJoinDropdownOpen] = useState(false);
-
-  // NEW: Drawer State
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // Scroll Detection
@@ -56,20 +56,22 @@ const Navbar = () => {
     try {
       await logOut();
       toast.success("Logged out successfully");
-      setIsDrawerOpen(false); // Close drawer
+      setIsDrawerOpen(false);
       navigate("/login");
     } catch (error) {
       toast.error(error.message);
     }
   };
 
-  // Close drawer helper
+  // Close helpers
   const closeDrawer = () => setIsDrawerOpen(false);
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   // Custom NavItem Component (For Top Menu)
   const NavItem = ({ to, children }) => (
     <NavLink
       to={to}
+      onClick={closeMobileMenu} // Close menu on click
       className={({ isActive }) =>
         `relative font-medium transition-colors duration-300 ${
           isActive ? "text-primary" : "text-base-content/70 hover:text-primary"
@@ -141,22 +143,56 @@ const Navbar = () => {
         }`}
       >
         <div className="navbar-start">
-          {/* Mobile Menu Trigger */}
+          {/* --- MOBILE MENU (FIXED) --- */}
           <div className="dropdown lg:hidden">
             <div
               tabIndex={0}
               role="button"
               className="btn btn-ghost btn-circle"
+              // Toggle logic fixed here
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               <IoGridOutline className="h-6 w-6" />
             </div>
-            {/* Mobile Menu Dropdown content would go here if needed separate from drawer */}
+
+            {/* Dropdown Content */}
+            {isMobileMenuOpen && (
+              <ul
+                tabIndex={0}
+                className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow-xl bg-base-100 rounded-box w-52 border border-base-200"
+              >
+                {publicLinks}
+
+                {/* Mobile specific join links if not logged in */}
+                {!user && (
+                  <>
+                    <div className="divider my-1"></div>
+                    <li>
+                      <Link to="/login" onClick={closeMobileMenu}>
+                        Login
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/join-employee" onClick={closeMobileMenu}>
+                        Join as Employee
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/join-hr" onClick={closeMobileMenu}>
+                        Join as HR
+                      </Link>
+                    </li>
+                  </>
+                )}
+              </ul>
+            )}
           </div>
 
           {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <img src="/navlogo.png" alt="Logo" className="w-20 h-20" />
+          <Link to="/" className="flex items-center gap-2 ml-2 lg:ml-0">
+            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600">
+              AssetVerse
+            </span>
           </Link>
         </div>
 
@@ -198,7 +234,7 @@ const Navbar = () => {
               </div>
             </div>
           ) : (
-            // --- LOGIN / JOIN BUTTONS ---
+            // --- LOGIN / JOIN BUTTONS (DESKTOP) ---
             <div className="hidden lg:flex items-center gap-3">
               <Link
                 to="/login"
