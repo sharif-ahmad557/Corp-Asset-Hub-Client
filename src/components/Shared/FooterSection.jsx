@@ -156,7 +156,7 @@ const FooterSection = () => {
             className="flex items-center gap-1 text-gray-400"
           >
             Made with <FaHeart className="text-red-500 animate-pulse" /> by
-            AssetVerse Team
+            Sharif Ahmad
           </motion.div>
         </div>
       </div>

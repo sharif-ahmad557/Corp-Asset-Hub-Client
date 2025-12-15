@@ -3,15 +3,17 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import toast from "react-hot-toast";
+import { FaEye, FaEyeSlash } from "react-icons/fa"; // Icon import
 import useAuth from "../../hooks/useAuth";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
-import axios from "axios"; // ✅ require → import
+import axios from "axios";
 
 const EmployeeRegister = () => {
   const { createUser, updateUserProfile } = useAuth();
   const axiosPublic = useAxiosPublic();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // Toggle state
 
   const {
     register,
@@ -24,7 +26,7 @@ const EmployeeRegister = () => {
 
     try {
       // 1. Firebase User Create
-      const result = await createUser(data.email, data.password);
+      await createUser(data.email, data.password);
 
       // 2. Update Name & Photo
       await updateUserProfile(
@@ -42,10 +44,12 @@ const EmployeeRegister = () => {
       };
 
       // 4. Save User in Backend Database
-      await axios.post("http://localhost:5000/users", userInfo);
+      await axios.post(
+        "https://corp-asset-hub-server.vercel.app/users",
+        userInfo
+      );
 
       toast.success("Registration successful! Please login.");
-
       navigate("/login");
     } catch (error) {
       toast.error(error.message || "Something went wrong!");
@@ -98,17 +102,25 @@ const EmployeeRegister = () => {
             )}
           </div>
 
-          {/* Password */}
+          {/* Password with Toggle */}
           <div className="form-control">
             <label className="label">
               <span className="label-text">Password</span>
             </label>
-            <input
-              type="password"
-              {...register("password", { required: true, minLength: 6 })}
-              placeholder="Password"
-              className="input input-bordered"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                {...register("password", { required: true, minLength: 6 })}
+                placeholder="Password"
+                className="input input-bordered w-full pr-10"
+              />
+              <span
+                className="absolute top-3.5 right-3 cursor-pointer text-gray-500 hover:text-primary"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
+            </div>
             {errors.password?.type === "required" && (
               <span className="text-error text-sm">Password is required</span>
             )}

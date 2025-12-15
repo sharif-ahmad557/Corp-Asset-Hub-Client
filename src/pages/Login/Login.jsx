@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { Helmet } from "react-helmet-async";
 import { FcGoogle } from "react-icons/fc";
 import { IoBriefcaseOutline, IoPeopleOutline } from "react-icons/io5";
+import { FaEye, FaEyeSlash } from "react-icons/fa"; // Icon import
 import toast from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
@@ -16,6 +17,7 @@ const Login = () => {
   const from = location.state?.from?.pathname || "/";
   const [loading, setLoading] = useState(false);
   const [googleUser, setGoogleUser] = useState(null);
+  const [showPassword, setShowPassword] = useState(false); // Toggle state
 
   const {
     register,
@@ -41,7 +43,6 @@ const Login = () => {
     try {
       const result = await googleSignIn();
       setGoogleUser(result.user);
-
       document.getElementById("role_modal").showModal();
     } catch (error) {
       toast.error(error.message);
@@ -57,7 +58,7 @@ const Login = () => {
         name: googleUser.displayName,
         email: googleUser.email,
         role: "employee",
-        dateOfBirth: null, // Google doesn't give DOB
+        dateOfBirth: null,
         createdAt: new Date(),
       };
 
@@ -106,17 +107,25 @@ const Login = () => {
               )}
             </div>
 
-            {/* Password Input */}
+            {/* Password Input with Toggle */}
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Password</span>
               </label>
-              <input
-                type="password"
-                placeholder="password"
-                className="input input-bordered"
-                {...register("password", { required: true })}
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="password"
+                  className="input input-bordered w-full pr-10"
+                  {...register("password", { required: true })}
+                />
+                <span
+                  className="absolute top-3.5 right-3 cursor-pointer text-gray-500 hover:text-primary"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </span>
+              </div>
               {errors.password && (
                 <span className="text-error text-sm">Password is required</span>
               )}
@@ -167,7 +176,6 @@ const Login = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
-            {/* Employee Option */}
             <button
               onClick={() => handleRoleSelect("employee")}
               className="btn h-auto py-4 flex-1 flex-col gap-2 btn-outline hover:btn-primary"
@@ -180,7 +188,6 @@ const Login = () => {
               </span>
             </button>
 
-            {/* HR Option */}
             <button
               onClick={() => handleRoleSelect("hr")}
               className="btn h-auto py-4 flex-1 flex-col gap-2 btn-outline hover:btn-secondary"
