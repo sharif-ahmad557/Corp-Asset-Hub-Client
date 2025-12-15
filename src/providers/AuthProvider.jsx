@@ -59,7 +59,7 @@ const AuthProvider = ({ children }) => {
       if (currentUser) {
         const userInfo = { email: currentUser.email };
         axios
-          .post("https://corp-asset-hub-server-2qvn.vercel.app/jwt", userInfo)
+          .post("https://corp-asset-hub-server-oayt.vercel.app/jwt", userInfo)
           .then((res) => {
             if (res.data.token) {
               localStorage.setItem("access-token", res.data.token);
