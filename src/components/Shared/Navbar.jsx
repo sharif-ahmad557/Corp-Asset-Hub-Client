@@ -190,9 +190,7 @@ const Navbar = () => {
 
           {/* Brand Logo */}
           <Link to="/" className="flex items-center gap-2 ml-2 lg:ml-0">
-            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600">
-              AssetVerse
-            </span>
+            <img src="/navlogo.png" alt="logo" className="w-20 h-20" />
           </Link>
         </div>
 
