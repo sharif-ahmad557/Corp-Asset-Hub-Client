@@ -76,7 +76,7 @@ const HrRegister = () => {
 
       await axiosPublic.post("/users", userInfo);
       toast.success("HR Account Created! Please Login.");
-      navigate("/login");
+      navigate("/");
     } catch (error) {
       toast.error(error.message);
     } finally {

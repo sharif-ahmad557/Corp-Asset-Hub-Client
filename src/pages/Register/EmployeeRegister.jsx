@@ -50,7 +50,7 @@ const EmployeeRegister = () => {
       );
 
       toast.success("Registration successful! Please login.");
-      navigate("/login");
+      navigate("/");
     } catch (error) {
       toast.error(error.message || "Something went wrong!");
     } finally {
