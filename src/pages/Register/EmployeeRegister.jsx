@@ -45,7 +45,7 @@ const EmployeeRegister = () => {
 
       // 4. Save User in Backend Database
       await axios.post(
-        "https://corp-asset-hub-server-cyyd.vercel.app/users",
+        "https://corp-asset-hub-server-3d4k.vercel.app/users",
         userInfo
       );
 
