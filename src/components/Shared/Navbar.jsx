@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import useAuth from "../../hooks/useAuth.jsx";
 import useRole from "../../hooks/useRole";
+import Logo from "./Logo"; // Logo Component Import করা হয়েছে
 import {
   IoMoon,
   IoSunny,
@@ -15,9 +16,9 @@ import {
   IoListOutline,
   IoRocketOutline,
   IoChevronDown,
-  IoLogInOutline,
-  IoClose,
   IoGridOutline,
+  IoClose,
+  IoHomeOutline,
 } from "react-icons/io5";
 import toast from "react-hot-toast";
 
@@ -42,7 +43,7 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Theme Toggle
+  // Theme Toggle Logic
   useEffect(() => {
     localStorage.setItem("theme", theme);
     document.querySelector("html").setAttribute("data-theme", theme);
@@ -67,13 +68,15 @@ const Navbar = () => {
   const closeDrawer = () => setIsDrawerOpen(false);
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
-  // Custom NavItem Component (For Top Menu)
+  // --- REUSABLE COMPONENTS ---
+
+  // Custom NavItem (Desktop)
   const NavItem = ({ to, children }) => (
     <NavLink
       to={to}
-      onClick={closeMobileMenu} // Close menu on click
+      onClick={closeMobileMenu}
       className={({ isActive }) =>
-        `relative font-medium transition-colors duration-300 ${
+        `relative font-medium text-sm lg:text-base transition-colors duration-300 ${
           isActive ? "text-primary" : "text-base-content/70 hover:text-primary"
         }`
       }
@@ -84,7 +87,7 @@ const Navbar = () => {
           {isActive && (
             <motion.span
               layoutId="underline"
-              className="absolute left-0 -bottom-1 w-full h-0.5 bg-gradient-to-r from-blue-600 to-violet-600"
+              className="absolute left-0 -bottom-1 w-full h-0.5 bg-primary"
             />
           )}
         </>
@@ -92,21 +95,21 @@ const Navbar = () => {
     </NavLink>
   );
 
-  // Custom Drawer Link Component (For Side Drawer)
+  // Custom Drawer Link (Sidebar/Drawer)
   const DrawerLink = ({ to, icon, label }) => (
     <NavLink
       to={to}
       onClick={closeDrawer}
       className={({ isActive }) =>
-        `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-medium ${
+        `flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 font-medium ${
           isActive
-            ? "bg-primary text-white shadow-lg shadow-primary/30"
+            ? "bg-primary text-white shadow-md shadow-primary/20"
             : "hover:bg-base-200 text-base-content/80"
         }`
       }
     >
       <span className="text-xl">{icon}</span>
-      <span>{label}</span>
+      <span className="text-sm">{label}</span>
     </NavLink>
   );
 
@@ -133,106 +136,115 @@ const Navbar = () => {
 
   return (
     <>
+      {/* --- MAIN NAVBAR --- */}
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className={`navbar fixed top-0 z-40 w-full px-4 sm:px-8 transition-all duration-300 ${
+        transition={{ duration: 0.5 }}
+        className={`navbar fixed top-0 z-50 w-full px-4 sm:px-8 transition-all duration-300 ${
           isScrolled
-            ? "bg-base-100/80 backdrop-blur-md shadow-lg border-b border-base-200 py-2"
-            : "bg-transparent py-4"
+            ? "bg-base-100/90 backdrop-blur-lg shadow-sm border-b border-base-200 py-3"
+            : "bg-transparent py-5"
         }`}
       >
         <div className="navbar-start">
-          {/* --- MOBILE MENU (FIXED) --- */}
+          {/* Mobile Menu Toggle */}
           <div className="dropdown lg:hidden">
             <div
               tabIndex={0}
               role="button"
               className="btn btn-ghost btn-circle"
-              // Toggle logic fixed here
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               <IoGridOutline className="h-6 w-6" />
             </div>
 
-            {/* Dropdown Content */}
-            {isMobileMenuOpen && (
-              <ul
-                tabIndex={0}
-                className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow-xl bg-base-100 rounded-box w-52 border border-base-200"
-              >
-                {publicLinks}
-
-                {/* Mobile specific join links if not logged in */}
-                {!user && (
-                  <>
-                    <div className="divider my-1"></div>
-                    <li>
-                      <Link to="/login" onClick={closeMobileMenu}>
-                        Login
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/join-employee" onClick={closeMobileMenu}>
-                        Join as Employee
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/join-hr" onClick={closeMobileMenu}>
-                        Join as HR
-                      </Link>
-                    </li>
-                  </>
-                )}
-              </ul>
-            )}
+            {/* Mobile Dropdown Content (Fixed Margin & Z-Index) */}
+            <AnimatePresence>
+              {isMobileMenuOpen && (
+                <motion.ul
+                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                  tabIndex={0}
+                  className="menu menu-sm dropdown-content absolute top-14 left-0 mt-4 z-[60] p-4 shadow-2xl bg-base-100 rounded-box w-64 border border-base-200"
+                >
+                  {publicLinks}
+                  {!user && (
+                    <>
+                      <div className="divider my-2"></div>
+                      <li>
+                        <Link
+                          to="/login"
+                          onClick={closeMobileMenu}
+                          className="font-bold"
+                        >
+                          Login
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/join-employee" onClick={closeMobileMenu}>
+                          Join as Employee
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/join-hr" onClick={closeMobileMenu}>
+                          Join as HR
+                        </Link>
+                      </li>
+                    </>
+                  )}
+                </motion.ul>
+              )}
+            </AnimatePresence>
           </div>
 
-          {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-2 ml-2 lg:ml-0">
-            <img src="/navlogo.png" alt="logo" className="w-20 h-20" />
-          </Link>
+          {/* Brand Logo (Updated with Logo Component) */}
+          <div className="ml-2 lg:ml-0">
+            <Logo />
+          </div>
         </div>
 
         {/* Center Menu (Desktop) */}
         <div className="navbar-center hidden lg:flex">
-          <ul className="menu menu-horizontal px-1 gap-8 text-base font-medium">
-            {publicLinks}
-          </ul>
+          <ul className="menu menu-horizontal px-1 gap-6">{publicLinks}</ul>
         </div>
 
         {/* Right Side */}
         <div className="navbar-end gap-3">
           {/* Theme Toggle */}
-          <label className="swap swap-rotate btn btn-ghost btn-circle hover:bg-base-200 text-base-content">
+          <label className="swap swap-rotate btn btn-ghost btn-circle btn-sm hover:bg-base-200 transition-colors">
             <input
               type="checkbox"
               onChange={handleToggle}
               checked={theme === "dark"}
             />
-            <IoSunny className="swap-on w-6 h-6 text-yellow-500" />
-            <IoMoon className="swap-off w-5 h-5" />
+            <IoSunny className="swap-on w-5 h-5 text-yellow-500" />
+            <IoMoon className="swap-off w-5 h-5 text-blue-500" />
           </label>
 
           {/* Auth Logic */}
           {user ? (
-            // --- USER PROFILE TRIGGER (OPENS DRAWER) ---
-            <div
-              className="btn btn-ghost btn-circle avatar online ring-2 ring-transparent hover:ring-primary transition-all duration-300 cursor-pointer"
-              onClick={() => setIsDrawerOpen(true)}
-            >
-              <div className="w-10 rounded-full">
-                <img
-                  alt="User"
-                  src={
-                    user?.photoURL ||
-                    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100"
-                  }
-                />
+            <div className="flex items-center gap-2">
+              {/* Profile Trigger */}
+              <div
+                className="avatar cursor-pointer tooltip tooltip-bottom"
+                data-tip="Dashboard"
+                onClick={() => setIsDrawerOpen(true)}
+              >
+                <div className="w-10 rounded-full ring-2 ring-primary ring-offset-2 ring-offset-base-100 transition-all hover:ring-opacity-80">
+                  <img
+                    alt="User"
+                    src={
+                      user?.photoURL ||
+                      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100"
+                    }
+                  />
+                </div>
               </div>
             </div>
           ) : (
-            // --- LOGIN / JOIN BUTTONS (DESKTOP) ---
+            // --- LOGGED OUT STATE ---
             <div className="hidden lg:flex items-center gap-3">
               <Link
                 to="/login"
@@ -245,7 +257,7 @@ const Navbar = () => {
                 onMouseEnter={() => setIsJoinDropdownOpen(true)}
                 onMouseLeave={() => setIsJoinDropdownOpen(false)}
               >
-                <button className="btn btn-primary px-6 rounded-full bg-gradient-to-r from-blue-600 to-violet-600 border-none text-white hover:shadow-lg hover:shadow-blue-500/30 flex items-center gap-2">
+                <button className="btn btn-primary px-6 rounded-full text-white shadow-lg shadow-primary/30 flex items-center gap-2 hover:shadow-primary/50 transition-all">
                   Get Started
                   <IoChevronDown
                     className={`transition-transform duration-300 ${
@@ -260,24 +272,34 @@ const Navbar = () => {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 15 }}
                       transition={{ duration: 0.2 }}
-                      className="absolute right-0 top-full mt-2 w-72 bg-base-100 rounded-xl shadow-2xl border border-base-200 overflow-hidden p-2"
+                      className="absolute right-0 top-full mt-4 w-72 bg-base-100 rounded-2xl shadow-2xl border border-base-200 overflow-hidden p-2 z-50"
                     >
                       <Link
                         to="/join-hr"
-                        className="flex items-center gap-3 p-3 hover:bg-base-200 rounded-lg"
+                        className="flex items-center gap-4 p-3 hover:bg-base-200 rounded-xl group transition-colors"
                       >
-                        <IoBriefcaseOutline className="text-xl text-blue-600" />
+                        <div className="p-3 bg-blue-100 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                          <IoBriefcaseOutline className="text-xl" />
+                        </div>
                         <div>
                           <p className="font-bold text-sm">Join as HR</p>
+                          <p className="text-xs text-base-content/60">
+                            Manage assets & teams
+                          </p>
                         </div>
                       </Link>
                       <Link
                         to="/join-employee"
-                        className="flex items-center gap-3 p-3 hover:bg-base-200 rounded-lg"
+                        className="flex items-center gap-4 p-3 hover:bg-base-200 rounded-xl group transition-colors"
                       >
-                        <IoPeopleOutline className="text-xl text-violet-600" />
+                        <div className="p-3 bg-violet-100 text-violet-600 rounded-lg group-hover:bg-violet-600 group-hover:text-white transition-colors">
+                          <IoPeopleOutline className="text-xl" />
+                        </div>
                         <div>
                           <p className="font-bold text-sm">Join as Employee</p>
+                          <p className="text-xs text-base-content/60">
+                            Request & track assets
+                          </p>
                         </div>
                       </Link>
                     </motion.div>
@@ -289,42 +311,39 @@ const Navbar = () => {
         </div>
       </motion.nav>
 
-      {/* --- SIDE DRAWER (FULL HEIGHT) --- */}
+      {/* --- RIGHT SIDE DRAWER --- */}
       <AnimatePresence>
         {isDrawerOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={closeDrawer}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90]"
             />
-
-            {/* Drawer Content */}
             <motion.div
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 h-full w-80 bg-base-100 z-[70] shadow-2xl border-l border-base-200 flex flex-col"
+              className="fixed top-0 right-0 h-full w-80 bg-base-100 z-[100] shadow-2xl flex flex-col border-l border-base-200"
             >
-              {/* Drawer Header */}
-              <div className="p-6 border-b border-base-200 bg-base-50 flex justify-between items-center">
-                <h3 className="text-lg font-bold text-base-content/70">Menu</h3>
+              <div className="p-5 border-b border-base-200 flex justify-between items-center bg-base-100/95 backdrop-blur-md sticky top-0 z-10">
+                <h3 className="text-lg font-bold text-base-content">
+                  Dashboard Menu
+                </h3>
                 <button
                   onClick={closeDrawer}
-                  className="btn btn-sm btn-circle btn-ghost hover:bg-error/10 hover:text-error"
+                  className="btn btn-sm btn-circle btn-ghost hover:bg-error hover:text-white transition-colors"
                 >
                   <IoClose className="text-xl" />
                 </button>
               </div>
 
-              {/* User Info Card */}
-              <div className="p-6 flex flex-col items-center text-center border-b border-base-200">
+              <div className="p-8 flex flex-col items-center text-center bg-base-200/30 border-b border-base-200">
                 <div className="avatar mb-4">
-                  <div className="w-20 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                  <div className="w-24 rounded-full ring-4 ring-primary ring-offset-base-100 ring-offset-2">
                     <img
                       src={
                         user?.photoURL ||
@@ -334,21 +353,27 @@ const Navbar = () => {
                     />
                   </div>
                 </div>
-                <h4 className="text-lg font-bold">{user?.displayName}</h4>
-                <p className="text-sm text-base-content/60 mb-2">
+                <h4 className="text-xl font-bold text-base-content">
+                  {user?.displayName}
+                </h4>
+                <p className="text-xs text-base-content/60 mb-4 font-mono">
                   {user?.email}
                 </p>
                 {isLoading ? (
-                  <span className="loading loading-dots loading-xs"></span>
+                  <span className="loading loading-dots loading-xs text-primary"></span>
                 ) : (
-                  <div className="badge badge-primary badge-outline uppercase text-xs font-bold tracking-wider">
-                    {role || "User"}
+                  <div
+                    className={`badge ${
+                      role === "hr" ? "badge-primary" : "badge-secondary"
+                    } badge-lg uppercase text-xs font-bold tracking-wider px-4 py-3`}
+                  >
+                    {role === "hr" ? "HR Manager" : "Employee"}
                   </div>
                 )}
               </div>
 
-              {/* Navigation Links (Scrollable Area) */}
               <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                <DrawerLink to="/" icon={<IoHomeOutline />} label="Home" />
                 {role === "employee" && (
                   <>
                     <DrawerLink
@@ -373,7 +398,6 @@ const Navbar = () => {
                     />
                   </>
                 )}
-
                 {role === "hr" && (
                   <>
                     <DrawerLink
@@ -399,7 +423,7 @@ const Navbar = () => {
                     <DrawerLink
                       to="/upgrade-package"
                       icon={<IoRocketOutline className="text-secondary" />}
-                      label="Upgrade Package"
+                      label="Upgrade Plan"
                     />
                     <DrawerLink
                       to="/profile"
@@ -410,11 +434,10 @@ const Navbar = () => {
                 )}
               </div>
 
-              {/* Footer (Logout) */}
               <div className="p-4 border-t border-base-200 bg-base-50">
                 <button
                   onClick={handleLogout}
-                  className="btn btn-error btn-outline w-full flex items-center justify-center gap-2"
+                  className="btn btn-error btn-outline w-full flex items-center justify-center gap-2 hover:text-white"
                 >
                   <IoLogOutOutline className="text-xl" /> Logout
                 </button>

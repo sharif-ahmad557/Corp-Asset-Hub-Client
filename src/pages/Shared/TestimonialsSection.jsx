@@ -15,7 +15,7 @@ const TestimonialsSection = () => {
       role: "CTO, TechFlow Logistics",
       image:
         "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop",
-      text: "AssetVerse has completely transformed how we track our hardware. The predictive maintenance feature alone saved us over $50k in the first quarter.",
+      text: "AssetMinder has completely transformed how we track our hardware. The predictive maintenance feature alone saved us over $50k in the first quarter.",
     },
     {
       id: 2,
@@ -39,7 +39,7 @@ const TestimonialsSection = () => {
       role: "Head of IT, NextGen Solutions",
       image:
         "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop",
-      text: "Security was our main concern, and AssetVerse's role-based access control is top-notch. Highly recommended for enterprise use.",
+      text: "Security was our main concern, and AssetMinder's role-based access control is top-notch. Highly recommended for enterprise use.",
     },
     {
       id: 5,
@@ -106,7 +106,7 @@ const TestimonialsSection = () => {
       setItemsPerScreen(items);
 
       // Fix: Ensure current index doesn't go out of bounds when resizing
-      const maxIdx = testimonials.length - items;
+      const maxIdx = Math.max(0, testimonials.length - items);
       if (currentIndex > maxIdx) {
         setCurrentIndex(maxIdx > 0 ? maxIdx : 0);
       }
@@ -132,12 +132,11 @@ const TestimonialsSection = () => {
   };
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev === 0 ? maxIndex : prev - 1));
+    setCurrentIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
   };
 
   const handleDotClick = (index) => {
-    if (index > maxIndex) setCurrentIndex(maxIndex);
-    else setCurrentIndex(index);
+    setCurrentIndex(index);
   };
 
   return (
@@ -151,11 +150,21 @@ const TestimonialsSection = () => {
       <div className="max-w-7xl mx-auto px-6 lg:px-16">
         {/* Header */}
         <div className="text-center mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+            className="badge badge-primary badge-outline mb-4 font-semibold px-4 py-3"
+          >
+            TESTIMONIALS
+          </motion.div>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
             viewport={{ once: true }}
-            className="text-4xl font-bold mb-4"
+            className="text-4xl font-bold mb-4 text-base-content"
           >
             Trusted by Industry{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600">
@@ -169,28 +178,19 @@ const TestimonialsSection = () => {
             viewport={{ once: true }}
             className="text-base-content/70 text-lg"
           >
-            See how AssetVerse is helping teams around the world.
+            See how <strong>AssetMinder</strong> is helping teams around the
+            world.
           </motion.p>
         </div>
 
         {/* Carousel Container */}
         <div className="relative group">
           {/* Main Slider Window */}
-          <div className="overflow-hidden py-10 -my-10 px-2">
+          <div className="overflow-hidden py-4 px-2">
             <motion.div
               className="flex gap-6"
               animate={{ x: `-${currentIndex * (100 / itemsPerScreen)}%` }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              drag="x"
-              dragConstraints={{
-                right: 0,
-                left: -((testimonials.length - itemsPerScreen) * 400),
-              }}
-              onDragEnd={(e, { offset }) => {
-                const swipe = offset.x;
-                if (swipe < -50) handleNext();
-                else if (swipe > 50) handlePrev();
-              }}
             >
               {testimonials.map((item) => (
                 <motion.div
@@ -208,7 +208,7 @@ const TestimonialsSection = () => {
                       ))}
                     </div>
 
-                    {/* Text */}
+                    {/* Text - Requirement #3 Same Height logic ensured by flex-grow */}
                     <p className="text-base-content/80 mb-8 italic relative z-10 leading-relaxed flex-grow">
                       "{item.text}"
                     </p>
@@ -221,7 +221,7 @@ const TestimonialsSection = () => {
                         </div>
                       </div>
                       <div>
-                        <h4 className="font-bold text-sm md:text-base">
+                        <h4 className="font-bold text-sm md:text-base text-base-content">
                           {item.name}
                         </h4>
                         <p className="text-xs text-primary font-semibold uppercase tracking-wide">
@@ -235,21 +235,21 @@ const TestimonialsSection = () => {
             </motion.div>
           </div>
 
-          {/* FIX: Wrapper div handles positioning, Button handles click animation */}
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 z-20 hidden md:block">
+          {/* Navigation Buttons (Desktop) */}
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 z-20 hidden md:block -ml-5">
             <button
               onClick={handlePrev}
-              className="btn btn-circle btn-primary shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300"
+              className="btn btn-circle btn-primary shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-full group-hover:translate-x-0"
               aria-label="Previous Slide"
             >
               <FaChevronLeft />
             </button>
           </div>
 
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 z-20 hidden md:block">
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 z-20 hidden md:block -mr-5">
             <button
               onClick={handleNext}
-              className="btn btn-circle btn-primary shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300"
+              className="btn btn-circle btn-primary shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-full group-hover:translate-x-0"
               aria-label="Next Slide"
             >
               <FaChevronRight />
@@ -258,7 +258,7 @@ const TestimonialsSection = () => {
         </div>
 
         {/* Pagination Dots */}
-        <div className="flex justify-center gap-2 mt-8">
+        <div className="flex justify-center gap-2 mt-8 flex-wrap">
           {Array.from({ length: maxIndex + 1 }).map((_, index) => (
             <button
               key={index}

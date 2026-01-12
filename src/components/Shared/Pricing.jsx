@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom"; // Added for navigation
 import { motion } from "framer-motion";
 import {
   FaCheck,
@@ -77,18 +78,18 @@ const Pricing = () => {
 
   return (
     <div className="bg-base-100 min-h-screen pt-20">
-      {/* 1. Dark Hero Section with Animations */}
-      <div className="bg-[#0f172a] text-white py-24 relative overflow-hidden">
+      {/* 1. Hero Section (Theme Aware Consistency) */}
+      <div className="bg-base-200 py-24 relative overflow-hidden">
         {/* Animated Background Blobs */}
         <motion.div
           animate={{ x: [0, 50, 0], y: [0, -50, 0] }}
           transition={{ repeat: Infinity, duration: 10, ease: "easeInOut" }}
-          className="absolute top-0 right-0 w-96 h-96 bg-blue-600/20 rounded-full blur-[100px]"
+          className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-[100px]"
         ></motion.div>
         <motion.div
           animate={{ x: [0, -50, 0], y: [0, 50, 0] }}
           transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
-          className="absolute bottom-0 left-0 w-96 h-96 bg-violet-600/20 rounded-full blur-[100px]"
+          className="absolute bottom-0 left-0 w-96 h-96 bg-violet-600/10 rounded-full blur-[100px]"
         ></motion.div>
 
         <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
@@ -97,13 +98,16 @@ const Pricing = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-4xl lg:text-6xl font-bold mb-6">
+            <div className="badge badge-primary badge-outline mb-4 px-4 py-3 font-semibold tracking-wider uppercase">
+              Flexible Plans
+            </div>
+            <h1 className="text-4xl lg:text-6xl font-bold mb-6 text-base-content">
               Plans that scale with your <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-violet-400">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600">
                 Business Growth
               </span>
             </h1>
-            <p className="text-gray-400 text-xl max-w-2xl mx-auto mb-10">
+            <p className="text-base-content/70 text-xl max-w-2xl mx-auto mb-10">
               Simple, transparent pricing. No hidden fees.
               <br />
               Start with a 14-day free trial.
@@ -115,14 +119,14 @@ const Pricing = () => {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="inline-flex items-center bg-white/10 rounded-full p-1 border border-white/10 backdrop-blur-md"
+            className="inline-flex items-center bg-base-100 rounded-full p-1 border border-base-300 shadow-sm"
           >
             <button
               onClick={() => setIsYearly(false)}
               className={`px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 ${
                 !isYearly
-                  ? "bg-white text-blue-900 shadow-lg"
-                  : "text-gray-300 hover:text-white"
+                  ? "bg-primary text-white shadow-md"
+                  : "text-base-content/60 hover:text-base-content"
               }`}
             >
               Monthly
@@ -131,12 +135,16 @@ const Pricing = () => {
               onClick={() => setIsYearly(true)}
               className={`px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 flex items-center gap-2 ${
                 isYearly
-                  ? "bg-white text-blue-900 shadow-lg"
-                  : "text-gray-300 hover:text-white"
+                  ? "bg-primary text-white shadow-md"
+                  : "text-base-content/60 hover:text-base-content"
               }`}
             >
               Yearly{" "}
-              <span className="text-[10px] bg-green-500 text-white px-2 py-0.5 rounded-full animate-pulse">
+              <span
+                className={`text-[10px] px-2 py-0.5 rounded-full animate-pulse ${
+                  isYearly ? "bg-white text-primary" : "bg-green-500 text-white"
+                }`}
+              >
                 SAVE 20%
               </span>
             </button>
@@ -157,12 +165,13 @@ const Pricing = () => {
             <motion.div
               key={plan.id}
               variants={itemVariants}
-              whileHover={{ y: -15, transition: { duration: 0.3 } }} // Hover Lift Effect
-              className={`bg-base-100 p-8 rounded-2xl shadow-xl border-t-4 flex flex-col items-center text-center relative overflow-hidden group
+              whileHover={{ y: -10, transition: { duration: 0.3 } }}
+              // Ensure consistent height (Req #3)
+              className={`bg-base-100 p-8 rounded-2xl shadow-xl flex flex-col items-center text-center relative overflow-hidden group h-full
                     ${
                       plan.popular
-                        ? "border-primary ring-2 ring-primary/20 shadow-primary/20"
-                        : "border-gray-300"
+                        ? "border-2 border-primary ring-4 ring-primary/5"
+                        : "border border-base-200"
                     }`}
             >
               {plan.popular && (
@@ -170,26 +179,28 @@ const Pricing = () => {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.5, type: "spring" }}
-                  className="badge badge-primary mb-4 px-3 py-1 font-bold tracking-wide"
+                  className="badge badge-primary mb-4 px-3 py-1 font-bold tracking-wide absolute top-4 right-4"
                 >
-                  MOST POPULAR
+                  POPULAR
                 </motion.div>
               )}
 
               <div
-                className={`text-5xl mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 ${
+                className={`text-5xl mb-6 mt-4 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 ${
                   plan.popular ? "text-primary" : "text-base-content/40"
                 }`}
               >
                 {plan.icon}
               </div>
 
-              <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+              <h3 className="text-2xl font-bold mb-2 text-base-content">
+                {plan.name}
+              </h3>
               <p className="text-base-content/60 mb-6 min-h-[48px]">
                 {plan.desc}
               </p>
 
-              <div className="text-4xl font-bold mb-1">
+              <div className="text-4xl font-bold mb-1 text-base-content">
                 ${plan.price}
                 <span className="text-lg font-normal text-base-content/50">
                   /mo
@@ -201,23 +212,24 @@ const Pricing = () => {
                   : "Billed monthly"}
               </p>
 
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`btn w-full rounded-full text-lg normal-case ${
-                  plan.popular
-                    ? "btn-primary shadow-lg shadow-primary/30"
-                    : "btn-outline"
-                }`}
-              >
-                Choose {plan.name}
-              </motion.button>
+              <div className="mt-auto w-full">
+                <Link
+                  to="/join-hr"
+                  className={`btn w-full rounded-full text-lg normal-case transition-all ${
+                    plan.popular
+                      ? "btn-primary shadow-lg shadow-primary/30"
+                      : "btn-outline btn-primary hover:text-white"
+                  }`}
+                >
+                  Choose {plan.name}
+                </Link>
+              </div>
             </motion.div>
           ))}
         </motion.div>
       </div>
 
-      {/* 3. Detailed Comparison Table (Row Highlight) */}
+      {/* 3. Detailed Comparison Table */}
       <div className="max-w-7xl mx-auto px-6 py-24">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -225,7 +237,9 @@ const Pricing = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl font-bold mb-4">Compare Features</h2>
+          <h2 className="text-3xl font-bold mb-4 text-base-content">
+            Compare Features
+          </h2>
           <p className="text-base-content/70">
             A detailed look at what's included in each plan.
           </p>
@@ -240,7 +254,7 @@ const Pricing = () => {
         >
           <table className="table w-full border border-base-200 rounded-xl shadow-sm bg-base-100">
             <thead>
-              <tr className="bg-base-200 text-base">
+              <tr className="bg-base-200 text-base text-base-content">
                 <th className="p-5 w-1/4">Features</th>
                 <th className="p-5 w-1/4 text-center">Starter</th>
                 <th className="p-5 w-1/4 text-center text-primary font-bold bg-primary/5">
@@ -257,9 +271,9 @@ const Pricing = () => {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.05 }}
-                  className="hover:bg-base-200/60 transition-colors duration-200 border-b border-base-200 group"
+                  className="hover:bg-base-200/60 transition-colors duration-200 border-b border-base-200 group text-base-content/80"
                 >
-                  <td className="p-4 font-medium text-base-content/80 group-hover:text-primary transition-colors">
+                  <td className="p-4 font-medium group-hover:text-primary transition-colors">
                     {item.name}
                   </td>
 
@@ -267,7 +281,7 @@ const Pricing = () => {
                   <td className="p-4 text-center">
                     {typeof item.starter === "boolean" ? (
                       item.starter ? (
-                        <FaCheck className="inline text-green-500 text-lg" />
+                        <FaCheck className="inline text-success text-lg" />
                       ) : (
                         <FaTimes className="inline text-base-content/20 text-lg" />
                       )
@@ -280,7 +294,7 @@ const Pricing = () => {
                   <td className="p-4 text-center bg-primary/5 group-hover:bg-primary/10 transition-colors">
                     {typeof item.pro === "boolean" ? (
                       item.pro ? (
-                        <FaCheck className="inline text-green-500 text-lg" />
+                        <FaCheck className="inline text-success text-lg" />
                       ) : (
                         <FaTimes className="inline text-base-content/20 text-lg" />
                       )
@@ -293,7 +307,7 @@ const Pricing = () => {
                   <td className="p-4 text-center">
                     {typeof item.ent === "boolean" ? (
                       item.ent ? (
-                        <FaCheck className="inline text-green-500 text-lg" />
+                        <FaCheck className="inline text-success text-lg" />
                       ) : (
                         <FaTimes className="inline text-base-content/20 text-lg" />
                       )
@@ -326,19 +340,18 @@ const Pricing = () => {
               integration needs, talk to our sales team.
             </p>
           </div>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <Link
+            to="/contact"
             className="btn bg-white text-gray-900 hover:bg-gray-100 border-none rounded-full px-8 relative z-10 font-bold flex items-center gap-2 group-hover:gap-3 transition-all"
           >
             Contact Sales <FaArrowRight />
-          </motion.button>
+          </Link>
         </motion.div>
       </div>
 
       {/* 5. FAQ Section (Staggered Accordion) */}
       <div className="max-w-3xl mx-auto px-6 pb-24">
-        <h2 className="text-3xl font-bold text-center mb-10">
+        <h2 className="text-3xl font-bold text-center mb-10 text-base-content">
           Frequently Asked Questions
         </h2>
         <motion.div
@@ -372,7 +385,7 @@ const Pricing = () => {
                 name="my-accordion-2"
                 defaultChecked={i === 0}
               />
-              <div className="collapse-title text-lg font-medium group-hover:text-primary transition-colors">
+              <div className="collapse-title text-lg font-medium text-base-content group-hover:text-primary transition-colors">
                 <div className="flex items-center gap-3">
                   <FaQuestionCircle className="text-primary" /> {faq.q}
                 </div>

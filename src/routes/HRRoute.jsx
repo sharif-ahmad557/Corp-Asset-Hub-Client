@@ -10,7 +10,7 @@ const HRRoute = ({ children }) => {
   if (loading || roleLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <span className="loading loading-spinner loading-lg text-secondary"></span>
+        <span className="loading loading-spinner loading-lg text-primary"></span>
       </div>
     );
   }
@@ -19,7 +19,6 @@ const HRRoute = ({ children }) => {
     return children;
   }
 
-  // লগইন আছে কিন্তু HR না হলে লগআউট করে দেওয়া যেতে পারে অথবা Home এ পাঠানো যেতে পারে
   return <Navigate to="/" state={{ from: location }} replace></Navigate>;
 };
 

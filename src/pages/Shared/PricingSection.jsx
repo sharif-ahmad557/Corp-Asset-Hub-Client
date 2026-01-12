@@ -81,15 +81,24 @@ const PricingSection = () => {
       <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-blue-500/5 blur-[120px] rounded-full pointer-events-none"></div>
       <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-violet-500/5 blur-[120px] rounded-full pointer-events-none"></div>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-16">
+      <div className="max-w-7xl mx-auto px-6 lg:px-16 relative z-10">
         {/* Header Content */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <motion.h2
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
-            className="text-4xl font-bold mb-4"
+            className="badge badge-primary badge-outline mb-4 font-semibold px-4 py-3"
+          >
+            PRICING PLANS
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            viewport={{ once: true }}
+            className="text-4xl font-bold mb-4 text-base-content"
           >
             Transparent Pricing for{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600">
@@ -113,28 +122,30 @@ const PricingSection = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             viewport={{ once: true }}
-            className="mt-8 flex items-center justify-center gap-4"
+            className="mt-8 flex items-center justify-center gap-4 bg-base-200 w-fit mx-auto px-6 py-2 rounded-full"
           >
             <span
-              className={`font-medium ${
-                !isYearly ? "text-primary" : "text-base-content/60"
+              className={`font-medium cursor-pointer transition-colors ${
+                !isYearly ? "text-primary font-bold" : "text-base-content/60"
               }`}
+              onClick={() => setIsYearly(false)}
             >
               Monthly
             </span>
             <input
               type="checkbox"
-              className="toggle toggle-lg toggle-primary hover:toggle-accent"
+              className="toggle toggle-md toggle-primary hover:toggle-accent"
               checked={isYearly}
               onChange={() => setIsYearly(!isYearly)}
             />
             <span
-              className={`font-medium ${
-                isYearly ? "text-primary" : "text-base-content/60"
+              className={`font-medium cursor-pointer transition-colors flex items-center gap-2 ${
+                isYearly ? "text-primary font-bold" : "text-base-content/60"
               }`}
+              onClick={() => setIsYearly(true)}
             >
-              Yearly{" "}
-              <span className="badge badge-accent badge-sm text-xs ml-1 font-bold animate-pulse">
+              Yearly
+              <span className="badge badge-accent badge-sm text-xs font-bold animate-pulse text-white">
                 -20%
               </span>
             </span>
@@ -143,7 +154,7 @@ const PricingSection = () => {
 
         {/* Pricing Cards Grid */}
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start"
+          className="grid grid-cols-1 md:grid-cols-3 gap-8"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -153,16 +164,17 @@ const PricingSection = () => {
             <motion.div
               key={index}
               variants={cardVariants}
-              className={`relative flex flex-col p-8 rounded-2xl transition-all duration-300 border 
+              // Removed scale-105 to maintain consistent size as per Req #1 & #3
+              className={`relative flex flex-col p-8 rounded-2xl transition-all duration-300 h-full
                 ${
                   plan.recommended
-                    ? "bg-base-100 shadow-2xl scale-105 border-primary z-10"
-                    : "bg-base-100 shadow-lg border-base-200 hover:border-primary/50"
+                    ? "bg-base-100 shadow-xl border-2 border-primary z-10"
+                    : "bg-base-100 shadow-md border border-base-200 hover:border-primary/30"
                 }`}
             >
               {plan.recommended && (
                 <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  <span className="badge badge-primary badge-lg px-4 py-3 font-bold shadow-lg uppercase tracking-wider text-xs">
+                  <span className="badge badge-primary badge-lg px-4 py-3 font-bold shadow-md uppercase tracking-wider text-xs">
                     Most Popular
                   </span>
                 </div>
@@ -178,14 +190,15 @@ const PricingSection = () => {
               </div>
 
               <div className="mb-6 flex items-baseline">
-                <span className="text-4xl font-extrabold tracking-tight">
+                <span className="text-4xl font-extrabold tracking-tight text-base-content">
                   ${plan.price}
                 </span>
-                <span className="text-base-content/50 ml-2">
+                <span className="text-base-content/50 ml-2 font-medium">
                   /{isYearly ? "year" : "mo"}
                 </span>
               </div>
 
+              {/* List Wrapper to push button to bottom */}
               <ul className="space-y-4 mb-8 flex-1">
                 {plan.features.map((feature, i) => (
                   <li
@@ -208,10 +221,10 @@ const PricingSection = () => {
               </ul>
 
               <button
-                className={`btn w-full rounded-full text-lg normal-case transition-all duration-300
+                className={`btn w-full rounded-full text-base font-bold transition-all duration-300
                   ${
                     plan.recommended
-                      ? "btn-primary hover:shadow-lg hover:shadow-primary/40 text-white border-none bg-gradient-to-r from-blue-600 to-violet-600"
+                      ? "btn-primary shadow-lg shadow-primary/30 text-white border-none bg-gradient-to-r from-blue-600 to-violet-600 hover:shadow-primary/50"
                       : "btn-outline btn-primary hover:bg-primary hover:text-white"
                   }`}
               >
@@ -228,7 +241,7 @@ const PricingSection = () => {
           transition={{ delay: 0.8 }}
           className="mt-12 text-center"
         >
-          <p className="text-sm text-base-content/50 flex justify-center items-center gap-2">
+          <p className="text-sm text-base-content/60 flex justify-center items-center gap-2">
             <FaCheckCircle className="text-success" /> No credit card required
             for 14-day free trial
           </p>

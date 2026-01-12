@@ -1,15 +1,22 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, ScrollRestoration } from "react-router-dom";
 import Navbar from "../components/Shared/Navbar";
 import FooterSection from "../components/Shared/FooterSection";
 
 const MainLayout = () => {
   return (
-    <div>
+    <div className="flex flex-col min-h-screen bg-base-100 text-base-content font-sans antialiased">
+      {/* ScrollRestoration ensures page starts at top on navigation */}
+      <ScrollRestoration />
+
+      {/* Fixed Navbar */}
       <Navbar />
-      <div className="pt-20 min-h-[calc(100vh-68px)] container mx-auto px-4">
+
+      <main className="flex-grow pt-24 px-4 container mx-auto">
         <Outlet />
-      </div>
+      </main>
+
+      {/* Footer */}
       <FooterSection />
     </div>
   );

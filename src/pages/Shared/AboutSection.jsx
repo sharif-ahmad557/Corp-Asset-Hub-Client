@@ -32,18 +32,18 @@ const AboutSection = () => {
   };
 
   return (
-    <section className="py-24 bg-base-200 relative overflow-hidden">
+    <section className="py-20 lg:py-28 bg-base-200 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-16">
         <div className="flex flex-col lg:flex-row gap-16 items-center">
           {/* Left Side: Image Composition */}
-          <div className="flex-1 relative w-full min-h-[400px]">
+          <div className="flex-1 relative w-full h-[400px] lg:h-[500px]">
             {/* Main Image */}
             <motion.div
               variants={imageLeftVariant}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
-              className="absolute top-0 left-0 w-4/5 h-4/5 rounded-2xl overflow-hidden shadow-2xl z-10"
+              className="absolute top-0 left-0 w-[85%] h-[85%] rounded-2xl overflow-hidden shadow-2xl z-10 border border-white/20"
             >
               <img
                 src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2670&auto=format&fit=crop"
@@ -58,7 +58,7 @@ const AboutSection = () => {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
-              className="absolute bottom-0 right-0 w-3/5 h-3/5 rounded-2xl overflow-hidden shadow-2xl border-4 border-base-200 z-20"
+              className="absolute bottom-0 right-0 w-[60%] h-[60%] rounded-2xl overflow-hidden shadow-2xl border-4 border-base-200 z-20"
             >
               <img
                 src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2670&auto=format&fit=crop"
@@ -68,7 +68,7 @@ const AboutSection = () => {
             </motion.div>
 
             {/* Decorative Dot Grid */}
-            <div className="absolute -top-10 -left-10 w-32 h-32 opacity-20 bg-[radial-gradient(#4f46e5_2px,transparent_2px)] [background-size:16px_16px]"></div>
+            <div className="absolute -top-10 -left-10 w-32 h-32 opacity-20 bg-[radial-gradient(currentColor_2px,transparent_2px)] [background-size:16px_16px] text-primary"></div>
           </div>
 
           {/* Right Side: Content */}
@@ -79,19 +79,17 @@ const AboutSection = () => {
             whileInView="visible"
             viewport={{ once: true }}
           >
+            {/* Badge Style Consistent with Hero */}
             <motion.div
               variants={fadeInUp}
-              className="flex items-center gap-2 mb-4"
+              className="badge badge-primary badge-outline mb-6 font-semibold px-4 py-3"
             >
-              <span className="h-1 w-12 bg-gradient-to-r from-blue-600 to-violet-600 rounded-full"></span>
-              <span className="text-sm font-bold tracking-widest text-primary uppercase">
-                Who We Are
-              </span>
+              WHO WE ARE
             </motion.div>
 
             <motion.h2
               variants={fadeInUp}
-              className="text-4xl font-bold mb-6 leading-tight"
+              className="text-3xl lg:text-5xl font-bold mb-6 leading-tight text-base-content"
             >
               Bridging the Gap Between <br />
               <span className="text-primary">Physical Assets</span> & Digital
@@ -102,19 +100,19 @@ const AboutSection = () => {
               variants={fadeInUp}
               className="text-base-content/70 text-lg mb-8 leading-relaxed"
             >
-              At AssetVerse, our mission is simple: to eliminate the chaos of
-              inventory management. We provide a unified platform that brings
-              clarity to complex operations, enabling businesses to track
-              lifecycle, reduce waste, and optimize procurement with AI-driven
-              insights.
+              At <strong>AssetMinder</strong>, our mission is simple: to
+              eliminate the chaos of inventory management. We provide a unified
+              platform that brings clarity to complex operations, enabling
+              businesses to track lifecycle, reduce waste, and optimize
+              procurement with AI-driven insights.
             </motion.p>
 
-            {/* Statistics Row (DaisyUI Stats) */}
+            {/* Statistics Row (DaisyUI Stats style adjusted for consistency) */}
             <motion.div
               variants={fadeInUp}
               className="grid grid-cols-1 sm:grid-cols-3 gap-6"
             >
-              <div className="bg-base-100 p-6 rounded-xl shadow-md border border-base-300 flex flex-col items-center text-center hover:-translate-y-1 transition-transform duration-300">
+              <div className="bg-base-100 p-6 rounded-xl shadow-sm border border-base-300 flex flex-col items-center text-center hover:shadow-md hover:-translate-y-1 transition-all duration-300">
                 <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-3 text-blue-600">
                   <FaGlobeAmericas className="text-2xl" />
                 </div>
@@ -126,7 +124,7 @@ const AboutSection = () => {
                 </p>
               </div>
 
-              <div className="bg-base-100 p-6 rounded-xl shadow-md border border-base-300 flex flex-col items-center text-center hover:-translate-y-1 transition-transform duration-300">
+              <div className="bg-base-100 p-6 rounded-xl shadow-sm border border-base-300 flex flex-col items-center text-center hover:shadow-md hover:-translate-y-1 transition-all duration-300">
                 <div className="p-3 bg-violet-100 dark:bg-violet-900/30 rounded-full mb-3 text-violet-600">
                   <FaUsers className="text-2xl" />
                 </div>
@@ -138,7 +136,7 @@ const AboutSection = () => {
                 </p>
               </div>
 
-              <div className="bg-base-100 p-6 rounded-xl shadow-md border border-base-300 flex flex-col items-center text-center hover:-translate-y-1 transition-transform duration-300">
+              <div className="bg-base-100 p-6 rounded-xl shadow-sm border border-base-300 flex flex-col items-center text-center hover:shadow-md hover:-translate-y-1 transition-all duration-300">
                 <div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-full mb-3 text-indigo-600">
                   <FaAward className="text-2xl" />
                 </div>

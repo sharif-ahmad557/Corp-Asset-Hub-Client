@@ -1,10 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import useAuth from "../../../hooks/useAuth";
-import useAxiosSecure from "../../../hooks/useAxiosSecure";
-import useRole from "../../../hooks/useRole";
 import {
   FaUserEdit,
   FaEnvelope,
@@ -13,25 +10,35 @@ import {
   FaSave,
   FaCamera,
   FaUserTie,
-  FaBuilding,
   FaBoxOpen,
   FaCalendarAlt,
+  FaTimes,
+  FaShieldAlt,
 } from "react-icons/fa";
 import toast from "react-hot-toast";
+import useAuth from "../../../hooks/useAuth";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import useRole from "../../../hooks/useRole";
 
 const Profile = () => {
-  const { user } = useAuth();
-  const [role] = useRole(); // Get current role
+  const { user, updateUserProfile } = useAuth(); // Added updateUserProfile
+  const [role] = useRole();
   const axiosSecure = useAxiosSecure();
   const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // 1. Fetch User Data from DB (to get extra fields like phone/location)
-  const { data: dbUser = {}, refetch } = useQuery({
+  // 1. Fetch User Data from DB
+  const {
+    data: dbUser = {},
+    refetch,
+    isLoading,
+  } = useQuery({
     queryKey: ["user-profile", user?.email],
     queryFn: async () => {
       const res = await axiosSecure.get(`/users/${user.email}`);
       return res.data;
     },
+    enabled: !!user?.email,
   });
 
   // 2. Fetch Stats based on Role
@@ -39,28 +46,28 @@ const Profile = () => {
     queryKey: ["profile-stats", user?.email, role],
     queryFn: async () => {
       if (role === "hr") {
-        // HR Stats logic (already done in dashboard, simplified here)
+        // Since we don't have a direct endpoint for single user stats in this context,
+        // we use dbUser properties if available or default
         return { label: "Employees", count: dbUser.currentEmployees || 0 };
       } else {
-        // Employee Stats: Count requested assets
         const res = await axiosSecure.get(
           `/requests/my-requests/${user.email}`
         );
         return { label: "My Requests", count: res.data.length || 0 };
       }
     },
-    enabled: !!role, // Only run when role is loaded
+    enabled: !!role && !!dbUser,
   });
 
   // Local State for Form
   const [formData, setFormData] = useState({
-    fullName: user?.displayName || "",
-    phone: dbUser?.phone || "",
-    location: dbUser?.location || "",
+    fullName: "",
+    phone: "",
+    location: "",
   });
 
   // Update form data when DB data loads
-  React.useEffect(() => {
+  useEffect(() => {
     if (dbUser) {
       setFormData({
         fullName: user?.displayName || dbUser.name || "",
@@ -74,19 +81,50 @@ const Profile = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Requirement: Editable Profile Information (Req #7)
   const handleSave = async () => {
-    // Note: You need a PUT/PATCH route in backend to save these details strictly.
-    // For now, we simulate success.
-    toast.success("Profile Updated Successfully!");
-    setIsEditing(false);
-    refetch();
+    setIsSaving(true);
+    try {
+      // 1. Update Firebase Profile (Name)
+      if (formData.fullName !== user.displayName) {
+        await updateUserProfile(formData.fullName, user.photoURL);
+      }
+
+      // 2. Update Backend Database
+      const updateData = {
+        name: formData.fullName,
+        phone: formData.phone,
+        location: formData.location,
+      };
+
+      const res = await axiosSecure.patch(`/users/${user.email}`, updateData);
+
+      if (res.data.modifiedCount > 0 || res.data.matchedCount > 0) {
+        toast.success("Profile Updated Successfully!");
+        setIsEditing(false);
+        refetch();
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update profile.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-base-200">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+    );
+  }
+
   return (
-    <div className="pt-24 pb-12 bg-base-200 min-h-screen">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <div className="py-10 lg:py-16 bg-base-200 min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-10 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -94,8 +132,8 @@ const Profile = () => {
             <h1 className="text-3xl font-bold text-base-content">
               {role === "hr" ? "Admin Profile" : "My Profile"}
             </h1>
-            <p className="text-base-content/60">
-              Manage your identity and preferences.
+            <p className="text-base-content/60 mt-1">
+              Manage your personal information and account settings.
             </p>
           </motion.div>
           <motion.div
@@ -105,11 +143,14 @@ const Profile = () => {
             <button
               onClick={() => setIsEditing(!isEditing)}
               className={`btn ${
-                isEditing ? "btn-error" : "btn-primary"
-              } gap-2 shadow-lg`}
+                isEditing ? "btn-error btn-outline" : "btn-primary"
+              } gap-2 shadow-sm`}
+              disabled={isSaving}
             >
               {isEditing ? (
-                "Cancel"
+                <>
+                  <FaTimes /> Cancel
+                </>
               ) : (
                 <>
                   <FaUserEdit /> Edit Profile
@@ -126,8 +167,7 @@ const Profile = () => {
             animate={{ opacity: 1, y: 0 }}
             className="lg:col-span-1"
           >
-            <div className="card bg-base-100 shadow-xl overflow-hidden border border-base-200">
-              {/* Dynamic Banner Color based on Role */}
+            <div className="card bg-base-100 shadow-xl overflow-hidden border border-base-200 h-full">
               <div
                 className={`h-32 relative ${
                   role === "hr"
@@ -135,7 +175,12 @@ const Profile = () => {
                     : "bg-gradient-to-r from-emerald-500 to-teal-600"
                 }`}
               >
-                <div className="absolute top-4 right-4 badge badge-accent badge-outline bg-white/20 text-white border-none backdrop-blur-sm uppercase font-bold tracking-wider">
+                <div className="absolute top-4 right-4 badge badge-neutral bg-black/20 backdrop-blur-md text-white border-none uppercase font-bold tracking-wider text-xs px-3 py-2">
+                  {role === "hr" ? (
+                    <FaShieldAlt className="mr-1" />
+                  ) : (
+                    <FaUserTie className="mr-1" />
+                  )}
                   {role === "hr" ? "HR Manager" : "Employee"}
                 </div>
               </div>
@@ -144,44 +189,58 @@ const Profile = () => {
                 {/* Avatar */}
                 <div className="relative -mt-16 mb-4">
                   <div className="avatar">
-                    <div className="w-32 rounded-full ring ring-base-100 ring-offset-base-100 ring-offset-2 bg-base-100">
+                    <div
+                      className={`w-32 rounded-full ring-4 ring-base-100 bg-base-100 shadow-lg`}
+                    >
                       <img
                         src={
                           user?.photoURL ||
-                          `https://ui-avatars.com/api/?name=${user?.displayName}&background=random&color=fff&size=128`
+                          `https://ui-avatars.com/api/?name=${
+                            user?.displayName || "User"
+                          }&background=random&color=fff&size=128`
                         }
                         alt="Profile"
                         className="object-cover"
                       />
                     </div>
                   </div>
-                  <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer text-white">
-                    <FaCamera className="text-xl" />
+                  {/* Camera icon is visual only for now as per req scope */}
+                  <div className="absolute bottom-1 right-1 bg-base-100 rounded-full p-2 shadow-md border border-base-200 text-base-content/70 cursor-pointer hover:text-primary transition-colors">
+                    <FaCamera className="text-sm" />
                   </div>
                 </div>
 
-                <h2 className="card-title text-2xl">{user?.displayName}</h2>
-                <p className="text-base-content/60 flex items-center gap-2 text-sm mb-4">
-                  <FaEnvelope /> {user?.email}
+                <h2 className="card-title text-2xl font-bold text-base-content">
+                  {user?.displayName}
+                </h2>
+                <p className="text-base-content/60 flex items-center justify-center gap-2 text-sm mb-6 bg-base-200/50 px-3 py-1 rounded-full w-fit mx-auto">
+                  <FaEnvelope className="text-xs" /> {user?.email}
                 </p>
 
                 {/* Stats Row */}
-                <div className="stats stats-vertical lg:stats-horizontal shadow w-full bg-base-200/50">
-                  <div className="stat place-items-center p-4">
-                    <div className="stat-title text-xs uppercase tracking-wide">
-                      {role === "hr" ? "Team Size" : "Assets"}
+                <div className="grid grid-cols-2 w-full gap-4 mb-6">
+                  <div className="bg-base-200/50 p-4 rounded-xl border border-base-200">
+                    <div className="text-xs uppercase tracking-wide text-base-content/50 font-bold mb-1">
+                      {role === "hr" ? "Team Size" : "Requests"}
                     </div>
-                    <div className="stat-value text-primary text-2xl">
+                    <div
+                      className={`text-2xl font-bold ${
+                        role === "hr" ? "text-primary" : "text-secondary"
+                      }`}
+                    >
                       {stats.count || 0}
                     </div>
                   </div>
-                  <div className="stat place-items-center p-4">
-                    <div className="stat-title text-xs uppercase tracking-wide">
+                  <div className="bg-base-200/50 p-4 rounded-xl border border-base-200">
+                    <div className="text-xs uppercase tracking-wide text-base-content/50 font-bold mb-1">
                       Joined
                     </div>
-                    <div className="stat-value text-secondary text-base">
+                    <div className="text-base font-semibold text-base-content/80 mt-1">
                       {dbUser.createdAt
-                        ? new Date(dbUser.createdAt).toLocaleDateString()
+                        ? new Date(dbUser.createdAt).toLocaleDateString(
+                            undefined,
+                            { month: "short", year: "numeric" }
+                          )
                         : "N/A"}
                     </div>
                   </div>
@@ -189,18 +248,23 @@ const Profile = () => {
 
                 {/* Employee Specific CTA */}
                 {role === "employee" && (
-                  <div className="w-full mt-6 space-y-2">
+                  <div className="w-full space-y-3">
                     <Link
                       to="/my-assets"
-                      className="btn btn-outline btn-primary btn-sm w-full gap-2"
+                      className="btn btn-outline btn-primary w-full gap-2 rounded-xl"
                     >
                       <FaBoxOpen /> View My Assets
                     </Link>
+                  </div>
+                )}
+
+                {role === "hr" && (
+                  <div className="w-full space-y-3">
                     <Link
-                      to="/my-team"
-                      className="btn btn-ghost btn-sm w-full gap-2"
+                      to="/asset-list"
+                      className="btn btn-outline btn-primary w-full gap-2 rounded-xl"
                     >
-                      <FaUserTie /> View My Team
+                      <FaBoxOpen /> Manage Assets
                     </Link>
                   </div>
                 )}
@@ -208,7 +272,6 @@ const Profile = () => {
             </div>
           </motion.div>
 
-          {/* Right Column: Information Form */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -216,16 +279,28 @@ const Profile = () => {
             className="lg:col-span-2"
           >
             <div className="card bg-base-100 shadow-xl border border-base-200 h-full">
-              <div className="card-body">
-                <h3 className="font-bold text-xl mb-6 border-b pb-2 border-base-200 flex items-center gap-2">
-                  <FaUserTie className="text-primary" /> Personal Information
-                </h3>
+              <div className="card-body p-6 lg:p-10">
+                <div className="flex items-center gap-3 mb-6 border-b border-base-200 pb-4">
+                  <div className="p-3 bg-primary/10 rounded-lg text-primary">
+                    <FaUserTie className="text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-base-content">
+                      Personal Information
+                    </h3>
+                    <p className="text-xs text-base-content/50">
+                      Update your personal details here.
+                    </p>
+                  </div>
+                </div>
 
                 <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Full Name */}
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text font-medium">Full Name</span>
+                      <span className="label-text font-semibold text-base-content/80">
+                        Full Name
+                      </span>
                     </label>
                     <input
                       type="text"
@@ -233,14 +308,21 @@ const Profile = () => {
                       value={formData.fullName}
                       onChange={handleInputChange}
                       disabled={!isEditing}
-                      className="input input-bordered focus:border-primary focus:outline-none disabled:bg-base-200 disabled:text-base-content/60"
+                      placeholder="Enter your full name"
+                      className={`input input-bordered w-full transition-all
+                        ${
+                          isEditing
+                            ? "focus:input-primary bg-base-100"
+                            : "bg-base-200/50 border-transparent text-base-content/60 cursor-not-allowed"
+                        }
+                      `}
                     />
                   </div>
 
                   {/* Email (Read Only) */}
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text font-medium">
+                      <span className="label-text font-semibold text-base-content/80">
                         Email Address
                       </span>
                     </label>
@@ -248,51 +330,66 @@ const Profile = () => {
                       type="email"
                       value={user?.email}
                       disabled
-                      className="input input-bordered bg-base-200 cursor-not-allowed text-base-content/60"
+                      className="input input-bordered w-full bg-base-200/50 border-transparent text-base-content/60 cursor-not-allowed"
                     />
                   </div>
 
                   {/* Phone */}
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text font-medium flex items-center gap-2">
-                        <FaPhoneAlt className="text-xs" /> Phone Number
+                      <span className="label-text font-semibold text-base-content/80 flex items-center gap-2">
+                        <FaPhoneAlt className="text-xs opacity-70" /> Phone
+                        Number
                       </span>
                     </label>
                     <input
                       type="text"
                       name="phone"
-                      placeholder="+880 1XXX..."
+                      placeholder={isEditing ? "+880 1XXX..." : "Not set"}
                       value={formData.phone}
                       onChange={handleInputChange}
                       disabled={!isEditing}
-                      className="input input-bordered focus:border-primary focus:outline-none disabled:bg-base-200 disabled:text-base-content/60"
+                      className={`input input-bordered w-full transition-all
+                        ${
+                          isEditing
+                            ? "focus:input-primary bg-base-100"
+                            : "bg-base-200/50 border-transparent text-base-content/60 cursor-not-allowed"
+                        }
+                      `}
                     />
                   </div>
 
                   {/* Location */}
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text font-medium flex items-center gap-2">
-                        <FaMapMarkerAlt className="text-xs" /> Address
+                      <span className="label-text font-semibold text-base-content/80 flex items-center gap-2">
+                        <FaMapMarkerAlt className="text-xs opacity-70" />{" "}
+                        Address
                       </span>
                     </label>
                     <input
                       type="text"
                       name="location"
-                      placeholder="Dhaka, Bangladesh"
+                      placeholder={isEditing ? "Dhaka, Bangladesh" : "Not set"}
                       value={formData.location}
                       onChange={handleInputChange}
                       disabled={!isEditing}
-                      className="input input-bordered focus:border-primary focus:outline-none disabled:bg-base-200 disabled:text-base-content/60"
+                      className={`input input-bordered w-full transition-all
+                        ${
+                          isEditing
+                            ? "focus:input-primary bg-base-100"
+                            : "bg-base-200/50 border-transparent text-base-content/60 cursor-not-allowed"
+                        }
+                      `}
                     />
                   </div>
 
                   {/* Date of Joining (Read Only) */}
                   <div className="form-control md:col-span-2">
                     <label className="label">
-                      <span className="label-text font-medium flex items-center gap-2">
-                        <FaCalendarAlt className="text-xs" /> Date Joined
+                      <span className="label-text font-semibold text-base-content/80 flex items-center gap-2">
+                        <FaCalendarAlt className="text-xs opacity-70" /> Date
+                        Joined
                       </span>
                     </label>
                     <input
@@ -303,7 +400,7 @@ const Profile = () => {
                           : "Not Available"
                       }
                       disabled
-                      className="input input-bordered bg-base-200 cursor-not-allowed text-base-content/60"
+                      className="input input-bordered w-full bg-base-200/50 border-transparent text-base-content/60 cursor-not-allowed"
                     />
                   </div>
                 </form>
@@ -312,13 +409,20 @@ const Profile = () => {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="card-actions justify-end mt-8"
+                    className="card-actions justify-end mt-8 pt-6 border-t border-base-200"
                   >
                     <button
                       onClick={handleSave}
-                      className="btn btn-primary bg-gradient-to-r from-blue-600 to-violet-600 border-none text-white gap-2"
+                      disabled={isSaving}
+                      className="btn btn-primary bg-gradient-to-r from-blue-600 to-violet-600 border-none text-white gap-2 px-8 rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40"
                     >
-                      <FaSave /> Save Changes
+                      {isSaving ? (
+                        <span className="loading loading-spinner loading-sm"></span>
+                      ) : (
+                        <>
+                          <FaSave /> Save Changes
+                        </>
+                      )}
                     </button>
                   </motion.div>
                 )}

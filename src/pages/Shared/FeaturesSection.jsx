@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   FaMapMarkedAlt,
@@ -7,7 +8,6 @@ import {
   FaQrcode,
   FaUserShield,
   FaCloudUploadAlt,
-  FaArrowRight,
 } from "react-icons/fa";
 
 const FeaturesSection = () => {
@@ -78,7 +78,7 @@ const FeaturesSection = () => {
       <div
         className="absolute inset-0 opacity-[0.03] pointer-events-none"
         style={{
-          backgroundImage: "radial-gradient(#4f46e5 1px, transparent 1px)",
+          backgroundImage: "radial-gradient(currentColor 1px, transparent 1px)",
           backgroundSize: "24px 24px",
         }}
       ></div>
@@ -95,15 +95,16 @@ const FeaturesSection = () => {
             <span className="badge badge-primary badge-outline mb-4 px-4 py-3 font-semibold tracking-wider uppercase">
               Key Capabilities
             </span>
-            <h2 className="text-4xl lg:text-5xl font-bold mb-6">
+            <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-base-content">
               Everything You Need to <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600">
                 Scale Your Operations
               </span>
             </h2>
             <p className="text-lg text-base-content/70">
-              Powerful features designed for modern teams. AssetVerse brings
-              clarity to chaos with a suite of intelligent tools.
+              Powerful features designed for modern teams.{" "}
+              <strong>AssetMinder</strong> brings clarity to chaos with a suite
+              of intelligent tools.
             </p>
           </motion.div>
         </div>
@@ -120,28 +121,23 @@ const FeaturesSection = () => {
             <motion.div
               key={feature.id}
               variants={cardVariants}
-              className="group bg-base-100 p-8 rounded-2xl border border-base-content/5 hover:border-primary/30 shadow-sm hover:shadow-xl transition-all duration-300 relative overflow-hidden"
+              className="group bg-base-100 p-8 rounded-2xl border border-base-content/5 hover:border-primary/30 shadow-sm hover:shadow-xl transition-all duration-300 relative overflow-hidden h-full flex flex-col"
             >
               {/* Gradient Hover Effect Background */}
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
               {/* Icon */}
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-100 to-violet-100 dark:from-blue-900/30 dark:to-violet-900/30 flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 transition-transform duration-300">
+              <div className="w-14 h-14 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300">
                 {feature.icon}
               </div>
 
               {/* Text */}
-              <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">
+              <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors text-base-content">
                 {feature.title}
               </h3>
-              <p className="text-base-content/70 leading-relaxed text-sm">
+              <p className="text-base-content/70 leading-relaxed text-sm flex-grow">
                 {feature.desc}
               </p>
-
-              {/* Learn More Link (Visual Only) */}
-              <div className="mt-6 flex items-center gap-2 text-sm font-semibold text-primary opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                <span>Learn more</span> <FaArrowRight className="text-xs" />
-              </div>
             </motion.div>
           ))}
         </motion.div>
@@ -167,9 +163,12 @@ const FeaturesSection = () => {
             </p>
           </div>
           <div className="relative z-10">
-            <button className="btn bg-white text-blue-700 hover:bg-gray-100 border-none rounded-full px-8 text-lg shadow-lg hover:scale-105 transition-transform">
+            <Link
+              to="/join-hr"
+              className="btn bg-white text-blue-700 hover:bg-gray-100 border-none rounded-full px-8 text-lg shadow-lg hover:scale-105 transition-transform"
+            >
               Get Started Now
-            </button>
+            </Link>
           </div>
         </motion.div>
       </div>
